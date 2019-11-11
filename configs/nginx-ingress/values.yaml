@@ -1,0 +1,11 @@
+nginx-ingress:
+  controller:
+    publishService:
+      enabled: true
+    extraArgs:
+      enable-ssl-passthrough: true
+    service:
+      omitClusterIP: true
+  defaultBackend:
+    service:
+      omitClusterIP: true
