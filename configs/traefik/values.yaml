@@ -1,4 +1,0 @@
-traefik:
-  dashboard:
-    enabled: true
-    domain: traefik.192.168.50.240.nip.io

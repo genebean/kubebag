@@ -3,4 +3,4 @@ namespace: metallb-system
 bases:
  - github.com/danderson/metallb/manifests?ref=v0.8.3
 resources:
-  - configmap.yml 
+  - configmap.yaml 

@@ -2,4 +2,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
   - https://github.com/rancher/local-path-provisioner/deploy
-
+patchesStrategicMerge:
+  - local-path-storageclass-patch.yaml

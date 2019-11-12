@@ -1,0 +1,22 @@
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: monitoring
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: prometheus-operator
+#   namespace: argocd
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   destination:
+#     namespace: monitoring
+#     server: {{ .Values.spec.destination.server }}
+#   project: default
+#   source:
+#     path: configs/prometheus-operator
+#     repoURL: {{ .Values.spec.source.repoURL }}
+#     targetRevision: {{ .Values.spec.source.targetRevision }}

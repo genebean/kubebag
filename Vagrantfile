@@ -51,6 +51,7 @@ Vagrant.configure("2") do |config|
           yum install -y perl-Digest-SHA
 
           # sleep so tiller can be started up
+          echo 'sleep so tiller can get started up...'
           sleep 60
 
           # deploy stuff
