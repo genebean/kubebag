@@ -1,0 +1,10 @@
+dependencies:
+- name: etcd-operator
+  version: 0.10.0
+  repository: https://kubernetes-charts.storage.googleapis.com
+- name: coredns
+  version: 1.7.4
+  repository: https://kubernetes-charts.storage.googleapis.com
+- name: external-dns
+  version: 2.10.2
+  repository: https://kubernetes-charts.storage.googleapis.com

@@ -1,0 +1,45 @@
+etcd-operator:
+  customResources:
+    createEtcdClusterCRD: true
+external-dns:
+  sources:
+    - ingress
+  provider: coredns
+  coredns:
+    etcdEndpoints: "http://etcd-cluster-client.localdns.svc:2379"
+  domainFilters:
+    - vagrant.example.com
+  # logLevel: debug
+  interval: "20s"
+  txtOwnerId: kubebag
+coredns:
+  # isClusterService specifies whether chart should be deployed as cluster-service or normal k8s app.
+  isClusterService: false
+  servers:
+    - zones:
+        - zone: .
+      port: 53
+      plugins:
+        - name: cache
+          parameters: 30
+        - name: errors
+        # Serves a /health endpoint on :8080, required for livenessProbe
+        - name: health
+        # Serves a /ready endpoint on :8181, required for readinessProbe
+        - name: ready
+        # Required to query kubernetes API for data
+        - name: kubernetes
+          parameters: cluster.local
+        - name: loadbalance
+          parameters: round_robin
+        # Serves a /metrics endpoint on :9153, required for serviceMonitor
+        - name: prometheus
+          parameters: 0.0.0.0:9153
+        - name: forward
+          parameters: . /etc/resolv.conf
+        - name: etcd
+          parameters: vagrant.example.com
+          configBlock: |-
+            stubzones
+            path /skydns
+            endpoint http://etcd-cluster-client.localdns.svc:2379
