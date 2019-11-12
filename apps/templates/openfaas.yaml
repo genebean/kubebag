@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openfaas
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/instance: applications
+spec:
+  destination:
+    namespace: openfaas
+    server: {{ .Values.spec.destination.server }}
+  project: default
+  source:
+    path: configs/openfaas
+    repoURL: {{ .Values.spec.source.repoURL }}
+    targetRevision: {{ .Values.spec.source.targetRevision }}
+    helm:
+      valueFiles:
+        - values.yaml
+  # syncPolicy:
+  #   automated:
+  #     prune: true
+  #     selfHeal: true

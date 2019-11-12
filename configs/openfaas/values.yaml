@@ -1,0 +1,18 @@
+basicauth:
+  username: admin
+  password: functions-are-fun
+openfaas:
+  basic_auth: true
+  functionNamespace: openfaas-fn
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    hosts:
+      - host: openfaas.192.168.50.240.nip.io
+        serviceName: gateway
+        servicePort: 8080
+        path: /
+  faasIdler:
+    dryRun: false
