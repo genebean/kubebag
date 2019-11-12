@@ -1,0 +1,17 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`argocd.192.168.50.240.nip.io`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 80
+  tls:
+    certResolver: default
+    options: {}
