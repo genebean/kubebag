@@ -44,7 +44,7 @@ The setup process will copy the generated kubeconfig `/vagrant`, aka the project
 ```bash
 cd kubebag
 export KUBECONFIG=kubeconfig
-vagrantup && kubectl get services -n nginx-ingress -w
+vagrant up && kubectl get services -n nginx-ingress -w
 ```
 
 Once you see a line like the one below you can hit `^c` and connect to [argocd.192.168.50.240.nip.io](http://argocd.192.168.50.240.nip.io)
