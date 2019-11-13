@@ -17,6 +17,7 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 - [ ] Alertmanager
 - [x] external-dns
 - [ ] cert-manager
+- [ ] Linkerd 2
 - [ ] Loki & promtail (maybe)
 
 To support this running in Vagrant before being run for real a few additional tools are being deployed here:
