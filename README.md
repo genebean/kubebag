@@ -2,31 +2,31 @@
 
 Kubebag is my playground where I am learning about k8s by trying to create a Kubernetes-based setup that could replace my current traditional server. The highlights of what I am aiming for:
 
-- [x] Based on k3s
-- [x] MetalLB
-- [x] local-path-provisioner
-- [x] Deployments with Argo CD
-- [x] Nginx Ingress controller
-- [x] OpenFaaS
+- [x] Based on [k3s](https://k3s.io)
+- [x] [MetalLB](https://metallb.universe.tf)
+- [x] [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
+- [x] Deployments with [Argo CD](https://argoproj.github.io/argo-cd)
+- [x] [Nginx Ingress controller](https://github.com/helm/charts/blob/master/stable/nginx-ingress/README.md)
+- [x] [OpenFaaS](https://www.openfaas.com)
 - [ ] postfix
-- [ ] Jekyll via OpenFaaS
+- [ ] [Jekyll](https://jekyllrb.com) via OpenFaaS
 - [ ] Slack bot via OpenFaaS
-- [ ] WordPress x2
-- [ ] MariaDB
+- [ ] [WordPress](https://github.com/helm/charts/blob/master/stable/wordpress/README.md) x2
+- [ ] [MariaDB](https://github.com/helm/charts/blob/master/stable/mariadb/README.md)
 - [ ] Matomo
 - [ ] Prometheus
 - [ ] Alertmanager
-- [x] external-dns
-- [ ] cert-manager
-- [ ] Linkerd 2
-- [ ] Loki & promtail (maybe)
+- [x] [ExternalDNS](https://github.com/kubernetes-sigs/external-dns/blob/master/README.md)
+- [ ] [cert-manager](https://docs.cert-manager.io)
+- [ ] [Linkerd 2](https://linkerd.io)
+- [ ] [Loki](https://github.com/grafana/loki) & [promtail](https://github.com/grafana/loki/blob/master/docs/clients/promtail/README.md) (maybe)
 
 To support this running in Vagrant before being run for real a few additional tools are being deployed here:
 
 - [x] Addresses that utilize [nip.io](https://nip.io/)
-- [x] CoreDNS
-- [ ] step-ca (a stand-in for Let's Encrypt)
-- [ ] Grafana (in production I plan to use Grafana Cloud)
+- [x] [CoreDNS](https://github.com/helm/charts/blob/master/stable/coredns/README.md)
+- [ ] [step-ca](https://smallstep.com/blog/private-acme-server/) (a stand-in for Let's Encrypt)
+- [ ] [Grafana](https://github.com/helm/charts/blob/master/stable/grafana/README.md) (in production I plan to use [Grafana Cloud](https://grafana.com/products/cloud/))
 
 ## Running Kubebag
 
