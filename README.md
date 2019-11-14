@@ -8,6 +8,7 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 - [x] Deployments with Argo CD
 - [x] Nginx Ingress controller
 - [x] OpenFaaS
+- [ ] postfix
 - [ ] Jekyll via OpenFaaS
 - [ ] Slack bot via OpenFaaS
 - [ ] WordPress x2
