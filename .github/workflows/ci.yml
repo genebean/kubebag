@@ -1,0 +1,56 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: helm setup
+      uses: stefanprodan/kube-tools@v1.0.0
+      with:
+          kubectl: 1.16.2
+          kustomize: 3.2.1
+          helm: 2.15.1
+          command: |
+            helm init --client-only
+    - name: check apps and configs
+      uses: stefanprodan/kube-tools@v1.0.0
+      with:
+          kubectl: 1.16.2
+          kustomize: 3.2.1
+          helm: 2.15.1
+          command: |
+            for d in $(ls apps/); do
+              if [ -f "apps/$d/Chart.yaml" ]; then
+                echo "apps/$d is a helm chart"
+                helm dependency update apps/$d
+                helm template apps/$d --values apps/$d/values.yaml |kubeval --strict --ignore-missing-schemas
+              else
+                echo "apps/$d doesn't look to be a helm chart"
+              fi
+              echo
+            done
+            for d in $(ls configs/); do
+              if [ -f "configs/$d/Chart.yaml" ]; then
+                echo "configs/$d is a helm chart"
+                helm dependency update configs/$d
+                helm template configs/$d --values configs/$d/values.yaml |kubeval --strict --ignore-missing-schemas
+              elif [ -f "configs/$d/kustomization.yaml" ]; then
+                echo "configs/$d uses Kustomize"
+                kustomize build configs/$d/ |kubeval --strict --ignore-missing-schemas
+              elif [ $(find ./configs/$d -maxdepth 1 -type f -name "*.yaml" |wc -l) -gt 0 ]; then
+                echo "configs/$d looks like raw yaml files"
+                kubeval configs/$d/*.yaml --strict --ignore-missing-schemas
+              else
+                echo "configs/$d doesn't look like it cotains any configs"
+              fi
+              echo
+            done
+    - name: Audit with Polaris
+      run: |
+        export VERSION='0.5.0'
+        curl -s -L https://github.com/FairwindsOps/polaris/releases/download/${VERSION}/polaris_${VERSION}_Linux_x86_64.tar.gz |sudo tar -xz -C /usr/local/bin
+        /usr/local/bin/polaris --version
+        /usr/local/bin/polaris --audit --audit-path ./configs/
