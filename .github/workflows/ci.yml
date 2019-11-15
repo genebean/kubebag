@@ -22,16 +22,14 @@ jobs:
           kustomize: 3.2.1
           helm: 2.15.1
           command: |
-            for d in $(ls apps/); do
-              if [ -f "apps/$d/Chart.yaml" ]; then
-                echo "apps/$d is a helm chart"
-                helm dependency update apps/$d
-                helm template apps/$d --values apps/$d/values.yaml |kubeval --strict --ignore-missing-schemas
-              else
-                echo "apps/$d doesn't look to be a helm chart"
-              fi
-              echo
-            done
+            if [ -f "apps/Chart.yaml" ]; then
+              echo "apps/ is a helm chart"
+              helm dependency update apps
+              helm template apps --values apps/values.yaml |kubeval --strict --ignore-missing-schemas
+            else
+              echo "apps/ doesn't look to be a helm chart"
+            fi
+            echo
             for d in $(ls configs/); do
               if [ -f "configs/$d/Chart.yaml" ]; then
                 echo "configs/$d is a helm chart"
@@ -48,6 +46,10 @@ jobs:
               fi
               echo
             done
+            if [ $(find ./test-files -maxdepth 1 -type f -name "*.yaml" |wc -l) -gt 0 ]; then
+              echo "test-files/ looks like raw yaml files"
+              kubeval test-files/*.yaml --strict --ignore-missing-schemas
+            fi
     - name: Audit with Polaris
       run: |
         export VERSION='0.5.0'
