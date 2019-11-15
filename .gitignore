@@ -1,4 +1,6 @@
 .vagrant/
+*/**/charts/
+*/**/requirements.lock
 argocd-pw
 gateway-password.txt
 kubeconfig

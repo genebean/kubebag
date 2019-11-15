@@ -3,6 +3,8 @@ basicauth:
   password: functions-are-fun
 openfaas:
   basic_auth: true
+  faasIdler:
+    dryRun: false
   functionNamespace: openfaas-fn
   ingress:
     enabled: true
@@ -14,5 +16,5 @@ openfaas:
         serviceName: gateway
         servicePort: 8080
         path: /
-  faasIdler:
-    dryRun: false
+  operator:
+    create: true
