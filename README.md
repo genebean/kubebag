@@ -12,7 +12,7 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 - [ ] Slack bot via OpenFaaS
 - [ ] Matomo
 - [ ] [MariaDB](https://github.com/helm/charts/blob/master/stable/mariadb/README.md) for Matomo
-- [TimescaleDB](https://github.com/timescale/timescaledb-kubernetes/blob/master/README.md)
+- [ ] [TimescaleDB](https://github.com/timescale/timescaledb-kubernetes/blob/master/README.md)
 - [ ] Prometheus
 - [ ] Alertmanager
 - [x] [ExternalDNS](https://github.com/kubernetes-sigs/external-dns/blob/master/README.md)
