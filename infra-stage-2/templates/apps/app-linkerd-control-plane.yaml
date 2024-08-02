@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd-control-plane
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-90"
+spec:
+  project: infra
+  source:
+    chart: linkerd-control-plane
+    repoURL: https://helm.linkerd.io/edge
+    targetRevision: 2024.7.5
+    helm:
+      parameters:
+        - name: cniEnabled
+          value: "true"
+        - name: identityTrustAnchorsPEM
+          value: |
+            -----BEGIN CERTIFICATE-----
+            MIIBjDCCATOgAwIBAgIQFcdhaMcm8qlAQ0+lCWg0rTAKBggqhkjOPQQDAjAlMSMw
+            IQYDVQQDExpyb290LmxpbmtlcmQuY2x1c3Rlci5sb2NhbDAeFw0yNDA4MDIyMDQ4
+            NTdaFw0zNDA3MzEyMDQ4NTdaMCUxIzAhBgNVBAMTGnJvb3QubGlua2VyZC5jbHVz
+            dGVyLmxvY2FsMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESXvpCxx+j3BR48uE
+            JJwM1rURWP7q80gBmfURNCBVFXir4VtAFyNv3oJ1i7SVKP58rHf02gH1gEc5tyJK
+            VNuGB6NFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYD
+            VR0OBBYEFJ7If0SpFqAcPhQaKkpiaC3zsNSIMAoGCCqGSM49BAMCA0cAMEQCIDEG
+            /ymV8+7CRPsQLF3MbpjuFTmkATuSpKcyEURu1XdSAiBpCB44ctX3Ap1pSzYHKAQK
+            WuGsyFQ92FLhKbt2MWYQ5w==
+            -----END CERTIFICATE-----
+        - name: identity.issuer.scheme
+          value: kubernetes.io/tls
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: linkerd-proxy-injector-k8s-tls
+      jsonPointers:
+        - /data/tls.crt
+        - /data/tls.key
+    - group: ""
+      kind: Secret
+      name: linkerd-sp-validator-k8s-tls
+      jsonPointers:
+        - /data/tls.crt
+        - /data/tls.key
+    - group: ""
+      kind: Secret
+      name: linkerd-policy-validator-k8s-tls
+      jsonPointers:
+        - /data/tls.crt
+        - /data/tls.key
+    - group: admissionregistration.k8s.io/v1
+      kind: MutatingWebhookConfiguration
+      name: linkerd-proxy-injector-webhook-config
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+    - group: admissionregistration.k8s.io/v1
+      kind: ValidatingWebhookConfiguration
+      name: linkerd-sp-validator-webhook-config
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+    - group: admissionregistration.k8s.io/v1
+      kind: ValidatingWebhookConfiguration
+      name: linkerd-policy-validator-webhook-config
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

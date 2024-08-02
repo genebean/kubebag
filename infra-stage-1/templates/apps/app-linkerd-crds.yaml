@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-90"
+spec:
+  project: infra
+  source:
+    chart: linkerd-crds
+    repoURL: https://helm.linkerd.io/edge
+    targetRevision: 2024.7.5
+    helm:
+      valuesObject:
+        enableHttpRoutes: false
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

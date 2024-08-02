@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-stage-2
+  namespace: argocd
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: infra
+  source:
+    helm:
+    path: infra-stage-2
+    repoURL: https://github.com/genebean/kubebag
+    targetRevision: redo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
