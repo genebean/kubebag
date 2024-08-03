@@ -53,7 +53,6 @@ helm upgrade --install cilium cilium/cilium --version 1.16.0 \
   --set k8sServicePort=6443 \
   --set kubeProxyReplacement=true \
   --set operator.replicas=1 \
-  --set securityContext.privileged=true \
   --set securityContext.privileged=true
 
 cilium status --wait

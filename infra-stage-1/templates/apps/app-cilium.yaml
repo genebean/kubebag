@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-95"
+spec:
+  project: infra
+  source:
+    chart: cilium
+    repoURL: https://helm.cilium.io/
+    targetRevision: 1.16.0
+    helm:
+      valuesObject:
+       bpf:
+         datapathMode: netkit
+       cni:
+         exclusive: false
+       envoy:
+         enabled: false
+       ipam:
+         operator:
+           clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
+       k8sServiceHost: "127.0.0.1"
+       k8sServicePort: 6443
+       kubeProxyReplacement: true
+       operator:
+         replicas: 1
+       securityContext:
+         privileged: true
+  destination:
+    namespace: kube-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
