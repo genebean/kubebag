@@ -4,7 +4,9 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 
 ## Setup
 
-Get Fedora CoreOS running:
+Install virt-manager and deps. Edit "default" network via `virsh net-edit default` and make the dhcp pool start at 100.
+
+Next, get Fedora CoreOS running:
 
 ```bash
 virt-install --name=fcos --vcpus=3 --ram=6144 \
@@ -12,15 +14,21 @@ virt-install --name=fcos --vcpus=3 --ram=6144 \
 --import \
 --network=bridge=virbr0 \
 --disk=size=20,backing_store=/home/gene/Downloads/fedora-coreos.qcow2 \
---qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/Downloads/server.ign" \
+--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
 --graphics=none
 ```
 
 Copy over a kube connfig:
 
 ```bash
-IPADDRESS=192.168.122.118 # update to IP of CoreOS
+IPADDRESS=192.168.122.10 # update to IP of CoreOS. This should match what is in server.bu
 ssh -o UserKnownHostsFile=/dev/null $IPADDRESS cat /etc/rancher/k3s/k3s.yaml |sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
+```
+
+Verify k3s access via
+
+```bash
+kubectl get ns
 ```
 
 If not already installed.....
@@ -71,6 +79,12 @@ argocd argo/argo-cd --set configs.params."server.insecure"=true
 helm template ./infra-stage-1 |kubectl apply -f -
 ```
 
+Wait for apps to sync and be healthy by watching this:
+
+```bash
+kubectl -n argocd get Applications
+```
+
 Generate trust anchor for Linkerd:
 
 ```bash
@@ -90,7 +104,7 @@ kubeseal --controller-name=sealed-secrets \
 --controller-namespace=kubeseal -o yaml > infra-stage-2/templates/linkerd/sealed-linkerd-trust-anchor.yaml
 ```
 
-Update ca cert in linkerd-control-plane with one generated above and then commit to git and push.
+Update ca cert in `infra-stage-2/templates/apps/app-linkerd-control-plane.yaml` with one generated above and then commit to git and push.
 
 ```bash
 helm template ./infra-stage-2 |kubectl apply -f -
@@ -111,6 +125,8 @@ ARGOCD_PW=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath
 
 ~/argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PW
 ~/argocd account update-password --current-password $ARGOCD_PW
+~/argocd login localhost:8080 --insecure --username admin # use new password
+
 ```
 
 ## To Do / Notes

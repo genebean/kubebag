@@ -96,6 +96,21 @@ storage:
       mode: 0644
       contents:
         inline: fcos-vm1
+    - path: /etc/NetworkManager/system-connections/enp1s0.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=enp1s0
+          type=ethernet
+          interface-name=enp1s0
+          [ipv4]
+          address1=192.168.122.10/24,192.168.122.1
+          dhcp-hostname=fcos-vm1
+          dns=192.168.122.1;
+          dns-search=
+          may-fail=false
+          method=manual
     - path: /etc/rancher/k3s/config.yaml
       mode: 0644
       contents:
@@ -108,6 +123,7 @@ storage:
           disable-network-policy: true
           flannel-backend: none
           selinux: true
+          tls-san: true
           write-kubeconfig-mode: "0644"
     - path: /etc/yum.repos.d/kubernetes.repo
       mode: 0644

@@ -45,10 +45,18 @@
         "mode": 420
       },
       {
+        "path": "/etc/NetworkManager/system-connections/enp1s0.nmconnection",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/1TMwarDIBCF4f08yzU3SigtxScJWQw6ohBHcaaBvH1poYtsP87519CYKWhpvEGJnrhbmUHPTp4002BSKKw0EgYyjJV+m7X0Y9kAYxwkYr19uMne7pN1brLzv1v+LgIxh25yE/1GUmhijmohslyvzw8ZIRwhe6h4moRl9wl3IaikuUVfkV+4wzsAAP//T2zVVL4AAAA="
+        },
+        "mode": 384
+      },
+      {
         "path": "/etc/rancher/k3s/config.yaml",
         "contents": {
           "compression": "gzip",
-          "source": "data:;base64,H4sIAAAAAAAC/1TMMa7DIBAE0J5TIPcr/cL6BbcBPEQrNou1QOzcPlISFylH82ayzD5gxMoj+GETbuMekyA478l32IMzJL3TsIjC9SJUZwLt1s7n75YU42hWaW/C+SqLRFUIpZgrdAtem8J1COs8v+YwHp/f3LTwje5tQ/DL3/+6Lu4VAAD//7ieEI+uAAAA"
+          "source": "data:;base64,H4sIAAAAAAAC/1SNMQ7DIBAEe16B3J+UwkrBbwCvoxOXw4Ijdn4fKbGLlKOd1WQZ3dCIlS14awNu4R6TIDjvyXe0F2dI+pK1iJXLpVAZCbS1erz/v6SwvbZCWxXO17hKVIVQirlAl+C1KlyHsI7jdEw69agn7Y3tV8lVV37Qsy4Ifrrd53lynwAAAP//PRlc6rwAAAA="
         },
         "mode": 420
       },

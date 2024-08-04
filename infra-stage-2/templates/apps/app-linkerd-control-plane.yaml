@@ -18,55 +18,21 @@ spec:
         - name: identityTrustAnchorsPEM
           value: |
             -----BEGIN CERTIFICATE-----
-            MIIBjDCCATOgAwIBAgIQFcdhaMcm8qlAQ0+lCWg0rTAKBggqhkjOPQQDAjAlMSMw
-            IQYDVQQDExpyb290LmxpbmtlcmQuY2x1c3Rlci5sb2NhbDAeFw0yNDA4MDIyMDQ4
-            NTdaFw0zNDA3MzEyMDQ4NTdaMCUxIzAhBgNVBAMTGnJvb3QubGlua2VyZC5jbHVz
-            dGVyLmxvY2FsMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESXvpCxx+j3BR48uE
-            JJwM1rURWP7q80gBmfURNCBVFXir4VtAFyNv3oJ1i7SVKP58rHf02gH1gEc5tyJK
-            VNuGB6NFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYD
-            VR0OBBYEFJ7If0SpFqAcPhQaKkpiaC3zsNSIMAoGCCqGSM49BAMCA0cAMEQCIDEG
-            /ymV8+7CRPsQLF3MbpjuFTmkATuSpKcyEURu1XdSAiBpCB44ctX3Ap1pSzYHKAQK
-            WuGsyFQ92FLhKbt2MWYQ5w==
+            MIIBjzCCATSgAwIBAgIRAO1q0LzjFD5YDGC7l/003H8wCgYIKoZIzj0EAwIwJTEj
+            MCEGA1UEAxMacm9vdC5saW5rZXJkLmNsdXN0ZXIubG9jYWwwHhcNMjQwODA0MDIx
+            MzU3WhcNMzQwODAyMDIxMzU3WjAlMSMwIQYDVQQDExpyb290LmxpbmtlcmQuY2x1
+            c3Rlci5sb2NhbDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJic6Hy3IiLBl1YT
+            s9rHtdQd6K6JdIVCP6uI71kMSEWosPKDWMM62CHlu4bGKKv6T75ad7KeuznM4ZmQ
+            6EV7vvijRTBDMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB0G
+            A1UdDgQWBBQGUEd2teG0dkiTcvJWLtYJGkKuOjAKBggqhkjOPQQDAgNJADBGAiEA
+            l6LdXdFrs8NoYvOAzaTao645HxCK3nGp3crXJ4rE6+0CIQDkPmc3iOVk6NjwQOHk
+            lTL53KyZiSx9oM+ZhhffW1sDUg==
             -----END CERTIFICATE-----
         - name: identity.issuer.scheme
           value: kubernetes.io/tls
   destination:
     namespace: linkerd
     server: https://kubernetes.default.svc
-  ignoreDifferences:
-    - group: ""
-      kind: Secret
-      name: linkerd-proxy-injector-k8s-tls
-      jsonPointers:
-        - /data/tls.crt
-        - /data/tls.key
-    - group: ""
-      kind: Secret
-      name: linkerd-sp-validator-k8s-tls
-      jsonPointers:
-        - /data/tls.crt
-        - /data/tls.key
-    - group: ""
-      kind: Secret
-      name: linkerd-policy-validator-k8s-tls
-      jsonPointers:
-        - /data/tls.crt
-        - /data/tls.key
-    - group: admissionregistration.k8s.io/v1
-      kind: MutatingWebhookConfiguration
-      name: linkerd-proxy-injector-webhook-config
-      jsonPointers:
-        - /webhooks/0/clientConfig/caBundle
-    - group: admissionregistration.k8s.io/v1
-      kind: ValidatingWebhookConfiguration
-      name: linkerd-sp-validator-webhook-config
-      jsonPointers:
-        - /webhooks/0/clientConfig/caBundle
-    - group: admissionregistration.k8s.io/v1
-      kind: ValidatingWebhookConfiguration
-      name: linkerd-policy-validator-webhook-config
-      jsonPointers:
-        - /webhooks/0/clientConfig/caBundle
   syncPolicy:
     automated:
       prune: true
