@@ -1,0 +1,4 @@
+dependencies:
+- name: rke2-multus
+  version: v4.0.206
+  repository: https://rke2-charts.rancher.io

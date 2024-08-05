@@ -1,6 +1,6 @@
 .vagrant/
-*/**/charts/
-*/**/requirements.lock
+/charts/**/charts/
+/charts/**/requirements.lock
 *.key
 argocd-pw
 ca.crt

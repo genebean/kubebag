@@ -6,34 +6,6 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 
 Install virt-manager and deps. Edit "default" network via `virsh net-edit default` and make the dhcp pool start at 100.
 
-Next, get Fedora CoreOS running:
-
-```bash
-virt-install --name=fcos --vcpus=3 --ram=6144 \
---os-variant=fedora-coreos-stable \
---import \
---network=bridge=virbr0 \
---disk=size=20,backing_store=/home/gene/Downloads/fedora-coreos.qcow2 \
---qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
---graphics=none
-```
-
-Copy over a kube connfig:
-
-```bash
-# Update to IP of CoreOS. This should match what is in server.bu
-IPADDRESS=192.168.122.10
-ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
-sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
-|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
-```
-
-Verify k3s access via
-
-```bash
-kubectl get ns
-```
-
 If not already installed.....
 
 ```bash
@@ -46,15 +18,42 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
-Bootstrap stuff:
+Next, get Fedora CoreOS running:
 
 ```bash
+virt-install --name=fcos --vcpus=3 --ram=6144 \
+--os-variant=fedora-coreos-stable \
+--import \
+--network=bridge=virbr0 \
+--disk=size=20,backing_store=/home/gene/Downloads/fedora-coreos.qcow2 \
+--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
+--graphics=none
+```
+
+Copy over a kube connfig and bootstrap things:
+
+```bash
+# Update to IP of CoreOS. This should match what is in server.bu
+IPADDRESS=192.168.122.10
+echo 'Waiting for K3s to generate a kubeconfig for us and then downloading it...'
+ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
+sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
+|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
+chmod 600 ~/.kube/config
+echo
+echo 'Listing namespaces to verify kubectl is working...'
+kubectl get ns
+echo
+echo 'updating local charts quietly'
+for d in $(ls charts/); do helm dependency update charts/$d; done >/dev/null
+echo 'updating charts used during bootstrapping...'
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo add cilium https://helm.cilium.io/
-helm repo add rke2-charts https://rke2-charts.rancher.io
-
+echo
 helm repo update
-
+echo
+echo 'Installing Cilium'
+echo
 helm upgrade --install cilium cilium/cilium --version 1.16.0 \
   --namespace kube-system \
   --set bpf.datapathMode=netkit \
@@ -79,13 +78,13 @@ sleep 30
 helm upgrade --install --namespace argocd --create-namespace \
 argocd argo/argo-cd --set configs.params."server.insecure"=true
 
-helm template ./infra-stage-1 |kubectl apply -f -
+helm template ./apps-of-apps/infra-stage-1 |kubectl apply -f -
 
 echo 'Starting to check for everything being ready'
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -c Healthy) -gt 0 ]; do echo 'Waiting for health status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -c Unknown) -gt 0 ]; do  echo 'Waiting for sync status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Synced -c) -eq 1 ]; do  echo 'Waiting for all apps to be synced'; kubectl -n argocd get Applications; echo; sleep 5; done
-until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Healthy -c) -eq 1 ]; do  echo 'Waiting for all apps to be ~~healthy~~'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -v Healthy -c) -eq 1 ]; do  echo 'Waiting for all apps to be healthy'; kubectl -n argocd get Applications; echo; sleep 5; done
 ```
 
 Generate trust anchor for Linkerd:
@@ -104,16 +103,16 @@ kubectl -n linkerd create secret tls \
   --key=ca.key \
   --dry-run=client -o yaml | \
 kubeseal --controller-name=sealed-secrets \
---controller-namespace=kubeseal -o yaml > infra-stage-2/templates/linkerd/sealed-linkerd-trust-anchor.yaml
+--controller-namespace=kubeseal -o yaml > charts/linkerd-control-plane/templates/sealed-linkerd-trust-anchor.yaml
 ```
 
-Update ca cert in `infra-stage-2/templates/apps/app-linkerd-control-plane.yaml` with one generated above and then commit to git and push.
+Update ca cert in `charts/linkerd-control-plane/values.yaml` with one generated above and then commit to git and push.
 
 ```bash
-helm template ./infra-stage-2 |kubectl apply -f -
+helm template ./apps-of-apps/infra-stage-2 |kubectl apply -f -
 ```
 
-At this stage stuff works. Go look at the web interface:
+At this stage stuff works. Set a new admin password and then go look at the web interface:
 
 In another terminal
 
@@ -137,4 +136,3 @@ ARGOCD_PW=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath
 - checked out viz dashboard via laptop
 - will need to enforce the that the following annotation is on everything but cert-manager
   `linkerd.io/inject: enabled`
-- Will need to setup LB IPAM like what is talked about in https://blog.stonegarden.dev/articles/2024/02/bootstrapping-k3s-with-cilium/#enable-ssh-server-optional

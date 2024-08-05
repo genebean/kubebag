@@ -1,18 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infra-stage-1
+  name: cilium
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-95"
 spec:
-  destination:
-    namespace: argocd
-    server: https://kubernetes.default.svc
   project: infra
   source:
-    helm:
-    path: infra-stage-1
     repoURL: https://github.com/genebean/kubebag.git
     targetRevision: redo
+    path: charts/cilium
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    namespace: kube-system
+    server: https://kubernetes.default.svc
   syncPolicy:
     automated:
       prune: true
