@@ -1,0 +1,19 @@
+# network-attachment-definition.yaml
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: multus-whereabouts
+  namespace: kube-system
+spec:
+  config: |-
+    {
+      "cniVersion": "4.0.2",
+      "type": "ipvlan",
+      "master": "enp1s0",
+      "mode": "l2"
+      "ipam": {
+        "type": "whereabouts",
+        "range": "10.43.0.0/24"
+      }
+    }

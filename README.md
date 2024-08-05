@@ -21,8 +21,11 @@ virt-install --name=fcos --vcpus=3 --ram=6144 \
 Copy over a kube connfig:
 
 ```bash
-IPADDRESS=192.168.122.10 # update to IP of CoreOS. This should match what is in server.bu
-ssh -o UserKnownHostsFile=/dev/null $IPADDRESS cat /etc/rancher/k3s/k3s.yaml |sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
+# Update to IP of CoreOS. This should match what is in server.bu
+IPADDRESS=192.168.122.10
+ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
+sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
+|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
 ```
 
 Verify k3s access via
@@ -77,12 +80,12 @@ helm upgrade --install --namespace argocd --create-namespace \
 argocd argo/argo-cd --set configs.params."server.insecure"=true
 
 helm template ./infra-stage-1 |kubectl apply -f -
-```
 
-Wait for apps to sync and be healthy by watching this:
-
-```bash
-watch kubectl -n argocd get Applications
+echo 'Starting to check for everything being ready'
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -c Healthy) -gt 0 ]; do echo 'Waiting for health status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -c Unknown) -gt 0 ]; do  echo 'Waiting for sync status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Synced -c) -eq 1 ]; do  echo 'Waiting for all apps to be synced'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Healthy -c) -eq 1 ]; do  echo 'Waiting for all apps to be ~~healthy~~'; kubectl -n argocd get Applications; echo; sleep 5; done
 ```
 
 Generate trust anchor for Linkerd:

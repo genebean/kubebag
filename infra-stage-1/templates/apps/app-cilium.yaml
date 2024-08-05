@@ -16,6 +16,8 @@ spec:
        bpf:
          datapathMode: netkit
        cni:
+         binPath: '/var/opt/cni/bin'
+         confPath: '/etc/cni/net.d'
          exclusive: false
        envoy:
          enabled: false

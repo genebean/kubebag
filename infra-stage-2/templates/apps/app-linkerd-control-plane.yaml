@@ -13,8 +13,8 @@ spec:
     targetRevision: 2024.7.5
     helm:
       parameters:
-        - name: cniEnabled
-          value: "true"
+        # - name: cniEnabled
+        #   value: "true"
         - name: identityTrustAnchorsPEM
           value: |
             -----BEGIN CERTIFICATE-----

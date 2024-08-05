@@ -12,6 +12,8 @@ spec:
     repoURL: https://helm.linkerd.io/edge
     targetRevision: 2024.7.5 
     helm:
+      # valuesObject:
+        # privileged: "true"
   destination:
     namespace: linkerd-cni
     server: https://kubernetes.default.svc

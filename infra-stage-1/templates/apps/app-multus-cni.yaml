@@ -16,14 +16,14 @@ spec:
         config:
           cni_conf:
             confDir: /etc/cni/net.d
-            binDir: /opt/cni/bin
+            binDir: /var/opt/cni/bin
             kubeconfig: /etc/cni/net.d/multus.d/multus.kubeconfig
         rke2-whereabouts:
           fullnameOverride: whereabouts
           enabled: true
           cniConf:
             confDir: /etc/cni/net.d
-            binDir: /opt/cni/bin
+            binDir: /var/opt/cni/bin
   destination:
     namespace: kube-system
     server: https://kubernetes.default.svc
