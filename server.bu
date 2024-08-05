@@ -23,6 +23,7 @@ systemd:
         Type=oneshot
         RemainAfterExit=yes
         ExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes kubectl k3s-selinux
+        ExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s && /usr/sbin/fixfiles -F -f relabel'
 
         [Install]
         WantedBy=multi-user.target
@@ -32,7 +33,8 @@ systemd:
         [Unit]
         Description=Run K3s
         Wants=network-online.target
-        After=network-online.target
+        After=rpm-ostree-install-k3s-dependencies.service
+        Requires=rpm-ostree-install-k3s-dependencies.service
 
         [Service]
         Type=notify
@@ -51,6 +53,23 @@ systemd:
         ExecStartPre=-/sbin/modprobe br_netfilter
         ExecStartPre=-/sbin/modprobe overlay
         ExecStart=/usr/local/bin/k3s server --kubelet-arg="config=/etc/rancher/k3s/kubelet.config"
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "rpm-ostree-install-extra-packages.service"
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install a few packages
+        Wants=network-online.target
+        After=network-online.target rpm-ostree-install-k3s-dependencies.service
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim
 
         [Install]
         WantedBy=multi-user.target

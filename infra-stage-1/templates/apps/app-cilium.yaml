@@ -27,8 +27,6 @@ spec:
        kubeProxyReplacement: true
        operator:
          replicas: 1
-       securityContext:
-         privileged: true
   destination:
     namespace: kube-system
     server: https://kubernetes.default.svc

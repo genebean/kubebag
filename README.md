@@ -48,6 +48,7 @@ Bootstrap stuff:
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo add cilium https://helm.cilium.io/
+helm repo add rke2-charts https://rke2-charts.rancher.io
 
 helm repo update
 
@@ -60,8 +61,7 @@ helm upgrade --install cilium cilium/cilium --version 1.16.0 \
   --set k8sServiceHost=127.0.0.1 \
   --set k8sServicePort=6443 \
   --set kubeProxyReplacement=true \
-  --set operator.replicas=1 \
-  --set securityContext.privileged=true
+  --set operator.replicas=1
 
 cilium status --wait
 
@@ -82,7 +82,7 @@ helm template ./infra-stage-1 |kubectl apply -f -
 Wait for apps to sync and be healthy by watching this:
 
 ```bash
-kubectl -n argocd get Applications
+watch kubectl -n argocd get Applications
 ```
 
 Generate trust anchor for Linkerd:

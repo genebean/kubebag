@@ -120,14 +120,19 @@
         "name": "var.mount"
       },
       {
-        "contents": "[Unit]\nDescription=Install k3s dependencies\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=|!/usr/bin/kubectl\nConditionPathExists=|!/usr/share/selinux/packages/k3s.pp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes kubectl k3s-selinux\n\n[Install]\nWantedBy=multi-user.target\n",
+        "contents": "[Unit]\nDescription=Install k3s dependencies\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=|!/usr/bin/kubectl\nConditionPathExists=|!/usr/share/selinux/packages/k3s.pp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes kubectl k3s-selinux\nExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s \u0026\u0026 /usr/sbin/fixfiles -F -f relabel'\n\n[Install]\nWantedBy=multi-user.target\n",
         "enabled": true,
         "name": "rpm-ostree-install-k3s-dependencies.service"
       },
       {
-        "contents": "[Unit]\nDescription=Run K3s\nWants=network-online.target\nAfter=network-online.target\n\n[Service]\nType=notify\nEnvironmentFile=-/etc/default/%N\nEnvironmentFile=-/etc/sysconfig/%N\nEnvironmentFile=-/etc/systemd/system/%N.env\nKillMode=process\nDelegate=yes\nLimitNOFILE=1048576\nLimitNPROC=infinity\nLimitCORE=infinity\nTasksMax=infinity\nTimeoutStartSec=0\nRestart=always\nRestartSec=5s\nExecStartPre=-/sbin/modprobe br_netfilter\nExecStartPre=-/sbin/modprobe overlay\nExecStart=/usr/local/bin/k3s server --kubelet-arg=\"config=/etc/rancher/k3s/kubelet.config\"\n\n[Install]\nWantedBy=multi-user.target\n",
+        "contents": "[Unit]\nDescription=Run K3s\nWants=network-online.target\nAfter=rpm-ostree-install-k3s-dependencies.service\nRequires=rpm-ostree-install-k3s-dependencies.service\n\n[Service]\nType=notify\nEnvironmentFile=-/etc/default/%N\nEnvironmentFile=-/etc/sysconfig/%N\nEnvironmentFile=-/etc/systemd/system/%N.env\nKillMode=process\nDelegate=yes\nLimitNOFILE=1048576\nLimitNPROC=infinity\nLimitCORE=infinity\nTasksMax=infinity\nTimeoutStartSec=0\nRestart=always\nRestartSec=5s\nExecStartPre=-/sbin/modprobe br_netfilter\nExecStartPre=-/sbin/modprobe overlay\nExecStart=/usr/local/bin/k3s server --kubelet-arg=\"config=/etc/rancher/k3s/kubelet.config\"\n\n[Install]\nWantedBy=multi-user.target\n",
         "enabled": true,
         "name": "k3s.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Install a few packages\nWants=network-online.target\nAfter=network-online.target rpm-ostree-install-k3s-dependencies.service\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "rpm-ostree-install-extra-packages.service"
       },
       {
         "contents": "[Unit]\nDescription=Cleanup pods terminated by node shutdown\nWants=k3s.service\n\n[Service]\nType=oneshot\nEnvironment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml\nExecStart=kubectl delete pods --field-selector status.phase=Failed -A --ignore-not-found=true\nRestart=on-failure\nRestartSec=30\n\n[Install]\nWantedBy=multi-user.target\n",
