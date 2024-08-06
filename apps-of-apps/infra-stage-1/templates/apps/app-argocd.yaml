@@ -20,7 +20,7 @@ spec:
       valuesObject:
         configs:
           cm:
-            'application.resourceTrackingMethod': annotation
+            'application.resourceTrackingMethod': annotation # Needed to keep Argo CD and Cilium from fighting
           params:
             "server.insecure": true
   syncPolicy:
