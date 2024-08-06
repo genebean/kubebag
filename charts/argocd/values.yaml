@@ -1,4 +1,4 @@
-argocd:
+argo-cd:
   configs:
     cm:
       'application.resourceTrackingMethod': annotation # Needed to keep Argo CD and Cilium from fighting
