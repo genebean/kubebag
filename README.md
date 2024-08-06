@@ -126,8 +126,11 @@ kubeseal --controller-name=sealed-secrets \
 --controller-namespace=kubeseal -o yaml > charts/external-dns/templates/sealed-gandi.yaml
 ```
 
+Commit and push gandi sealed secret
+
 ```bash
 helm template ./apps-of-apps/infra-stage-2 |kubectl apply -f -
+watch -d 'kubectl -n argocd get applications'
 ```
 
 At this stage stuff works. Set a new admin password and then go look at the web interface:
