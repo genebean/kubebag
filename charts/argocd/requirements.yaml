@@ -1,4 +1,4 @@
 dependencies:
-- name: some-chart
+- name: argo-cd
   version: 7.3.11
   repository: https://argoproj.github.io/argo-helm
