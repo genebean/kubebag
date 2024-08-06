@@ -22,7 +22,7 @@ systemd:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes kubectl k3s-selinux
+        ExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes kubectl k3s-selinux
         ExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s && /usr/sbin/fixfiles -F -f relabel'
 
         [Install]
@@ -64,12 +64,15 @@ systemd:
         Wants=network-online.target
         After=network-online.target rpm-ostree-install-k3s-dependencies.service
         Before=zincati.service
-        ConditionPathExists=!/var/lib/%N.stamp
+        ConditionPathExists=|!/usr/bin/htop
+        ConditionPathExists=|!/usr/sbin/ipvsadm
+        ConditionPathExists=|!/usr/bin/tree
+        ConditionPathExists=|!/usr/bin/vim
 
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim
+        ExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim
 
         [Install]
         WantedBy=multi-user.target
