@@ -8,14 +8,12 @@ metadata:
 spec:
   project: infra
   source:
-    chart: cert-manager
-    repoURL: https://charts.jetstack.io
-    targetRevision: v1.15.2
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/cert-manager
     helm:
-      valuesObject:
-        installCRDs: "true"
-        extraArgs:
-          - '--enable-gateway-api'
+      valueFiles:
+        - values.yaml
   destination:
     namespace: cert-manager
     server: https://kubernetes.default.svc
