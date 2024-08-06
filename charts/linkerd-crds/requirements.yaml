@@ -1,0 +1,4 @@
+dependencies:
+- name: linkerd-crds
+  version: 2024.7.5
+  repository: https://helm.linkerd.io/edge

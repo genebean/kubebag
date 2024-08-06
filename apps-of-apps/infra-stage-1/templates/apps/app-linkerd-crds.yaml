@@ -8,12 +8,12 @@ metadata:
 spec:
   project: infra
   source:
-    chart: linkerd-crds
-    repoURL: https://helm.linkerd.io/edge
-    targetRevision: 2024.7.5
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/linkerd-crds
     helm:
-      valuesObject:
-        enableHttpRoutes: false
+      valueFiles:
+        - values.yaml
   destination:
     namespace: linkerd
     server: https://kubernetes.default.svc

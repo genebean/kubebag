@@ -1,0 +1,2 @@
+linkerd-crds:
+  enableHttpRoutes: false
