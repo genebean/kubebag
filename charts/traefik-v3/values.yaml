@@ -1,0 +1,8 @@
+traefik:
+  ingressClass:
+    name: traefik
+  providers:
+    kubernetesCRD:
+      ingressClass: traefik
+    kubernetesIngress:
+      ingressClass: traefik

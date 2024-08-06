@@ -8,18 +8,12 @@ metadata:
 spec:
   project: infra
   source:
-    chart: traefik
-    repoURL: https://traefik.github.io/charts 
-    targetRevision: 30.0.2
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/traefik-v3
     helm:
-      valuesObject:
-        ingressClass:
-          name: traefik
-        providers:
-          kubernetesCRD:
-            ingressClass: traefik
-          kubernetesIngress:
-            ingressClass: traefik
+      valueFiles:
+        - values.yaml
   destination:
     namespace: traefik-v3
     server: https://kubernetes.default.svc

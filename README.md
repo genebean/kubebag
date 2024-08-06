@@ -108,6 +108,24 @@ kubeseal --controller-name=sealed-secrets \
 
 Update ca cert in `charts/linkerd-control-plane/values.yaml` with one generated above and then commit to git and push.
 
+Get Gandi PAT:
+
+```bash
+read -s EXTERNAL_DNS_GANDI
+```
+
+Create the secret for Gandi:
+
+```bash
+export EXTERNAL_DNS_GANDI $EXTERNAL_DNS_GANDI
+kubectl -n external-dns create secret generic \
+  sealed-gandi \
+  --from-literal=GANDI_PAT=$EXTERNAL_DNS_GANDIa \
+  --dry-run=client -o yaml | \
+kubeseal --controller-name=sealed-secrets \
+--controller-namespace=kubeseal -o yaml > charts/traefik-v3/templates/gateway-class-traefik-v3.yaml
+```
+
 ```bash
 helm template ./apps-of-apps/infra-stage-2 |kubectl apply -f -
 ```

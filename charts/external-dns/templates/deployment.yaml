@@ -1,0 +1,33 @@
+# https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/gandi/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-dns
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      containers:
+        - name: external-dns
+          image: registry.k8s.io/external-dns/external-dns:v0.14.2
+          args:
+            # https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/gateway-api/
+            # Add desired Gateway API Route sources.
+            - --source=gateway-httproute
+            - --source=gateway-tlsroute
+            - --source=gateway-tcproute
+            - --source=gateway-udproute
+            # Add provider-specific flags...
+            - --domain-filter=k8s.technicalissues.us # (optional) limit to only example.com domains; change to match the zone created above.
+            - --provider=gandi
+          envFrom:
+            - secretRef:
+                name: sealed-gandi
