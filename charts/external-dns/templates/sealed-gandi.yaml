@@ -7,10 +7,9 @@ metadata:
   namespace: external-dns
 spec:
   encryptedData:
-    GANDI_PAT: foo
+    GANDI_PAT: AgB7IbuL23/dNduWoUYUu9g5+MhwuZkIT2xm6FcfDdUY7vxq3vuU95z+kAvCf+HoLLdgR6kl0GaqRZkKLqraBcrDv689bOxt/ISsQdPGs/MGvim68C+cEzSPGXZZDPxOkFzZDzU1SDAwXsPmWlLPu92l/MsDXHh70FFsl5NuUTitW7xwR4UaHz6vE80OJfwYcvlP9H9K+C9jm/xcZxU3mzioJpI/mmdlD5dUahedxvkPokFSnRZ1lwImoQ+MmHsdFV1pSq4zDgIhalDmOAmWJUc/Rk+/p4ZbKmOVFWmVwVXg2t0MTcq1ouwteFAlBAyG4xamqC10gLKzi3XaV7QDOFT3qcVj52rTOhSQHzthjsFQGeYrvBHtZxM0adDICMyZLEeoVJuXXLynPqPCGBkcRBw/2bZZPue+8w+WFqbTcXiS4JshK4ElKy2ZZbX6X23TWfepLMjgFOxus6s8UI8DZr/YhYftDbQWKW9QLTJcVon0+RH0fdFvtYNb3WbmC72o/WrI2HwXIFVhiiDRKy30amezl4myLi453RHU5eKHZ3yCIKgCCrvkxmSuUs4pLkAqxhdB8uqKYexb1xRilUStkoCCkZGksfG73a4x0YqU9nlJEELenZI7/CZTVO8OmFipouwoNqe1r2AGFSeRcOFQaaaBCuSjqc9KQdd5Y3Y+RmYMqVLJLflYxU5f7AECTtuyioWeDxP2lFy4VGnJMNop5zvS7xS53tR86nGxOBeC0w9Kuad+G3evQ3tk
   template:
     metadata:
       creationTimestamp: null
       name: sealed-gandi
       namespace: external-dns
-    type: kubernetes.io/tls

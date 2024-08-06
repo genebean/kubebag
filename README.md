@@ -123,7 +123,7 @@ kubectl -n external-dns create secret generic \
   --from-literal=GANDI_PAT=$EXTERNAL_DNS_GANDI \
   --dry-run=client -o yaml | \
 kubeseal --controller-name=sealed-secrets \
---controller-namespace=kubeseal -o yaml > charts/traefik-v3/templates/gateway-class-traefik-v3.yaml
+--controller-namespace=kubeseal -o yaml > charts/external-dns/templates/sealed-gandi.yaml
 ```
 
 ```bash
