@@ -42,21 +42,30 @@ sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
 chmod 600 ~/.kube/config
 echo
 echo 'Listing namespaces to verify kubectl is working...'
-kubectl get ns
+until kubectl get ns; do sleep 5; done
 echo
-echo 'updating local charts quietly'
-for d in $(ls charts/); do helm dependency update charts/$d; done >/dev/null
 echo 'updating charts used during bootstrapping...'
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo add cilium https://helm.cilium.io/
 echo
 helm repo update
+echo 'updating local charts quietly'
+for d in $(ls charts/); do helm dependency update charts/$d; done >/dev/null
 echo
 echo 'Installing Cilium'
 echo
-helm upgrade --install cilium ./charts/cilium --namespace kube-system
+helm upgrade --install cilium cilium/cilium --version 1.16.0 \
+  --namespace kube-system \
+  --set bpf.datapathMode=netkit \
+  --set cni.exclusive=false \
+  --set envoy.enabled=false \
+  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
+  --set k8sServiceHost=127.0.0.1 \
+  --set k8sServicePort=6443 \
+  --set kubeProxyReplacement=true \
+  --set operator.replicas=1
 
-cilium status --wait
+until cilium status --wait; do echo 'cilium status timed out, trying again'; sleep 2; done
 
 sleep 5
 
