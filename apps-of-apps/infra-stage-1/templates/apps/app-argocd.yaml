@@ -13,16 +13,12 @@ spec:
     server: "https://kubernetes.default.svc"
   project: infra
   source:
-    chart: argo-cd
-    repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 7.3.11
+    repoURL: https://github.com/genebean/kubebag.gi
+    targetRevision: redo
+    path: charts/argocd
     helm:
-      valuesObject:
-        configs:
-          cm:
-            'application.resourceTrackingMethod': annotation # Needed to keep Argo CD and Cilium from fighting
-          params:
-            "server.insecure": true
+      valueFiles:
+        - values.yaml
   syncPolicy:
     automated:
       prune: true

@@ -1,0 +1,4 @@
+dependencies:
+- name: some-chart
+  version: x.y.z
+  repository: https://foo
