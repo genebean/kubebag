@@ -13,7 +13,7 @@ spec:
     server: "https://kubernetes.default.svc"
   project: infra
   source:
-    repoURL: https://github.com/genebean/kubebag.gi
+    repoURL: https://github.com/genebean/kubebag.git
     targetRevision: redo
     path: charts/argocd
     helm:

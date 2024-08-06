@@ -54,16 +54,7 @@ helm repo update
 echo
 echo 'Installing Cilium'
 echo
-helm upgrade --install cilium cilium/cilium --version 1.16.0 \
-  --namespace kube-system \
-  --set bpf.datapathMode=netkit \
-  --set cni.exclusive=false \
-  --set envoy.enabled=false \
-  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
-  --set k8sServiceHost=127.0.0.1 \
-  --set k8sServicePort=6443 \
-  --set kubeProxyReplacement=true \
-  --set operator.replicas=1
+helm upgrade --install cilium ./charts/cilium --namespace kube-system
 
 cilium status --wait
 
@@ -75,8 +66,8 @@ kubectl get pods --all-namespaces \
 
 sleep 30
 
-helm upgrade --install --namespace argocd --create-namespace \
-argocd argo/argo-cd --set configs.params."server.insecure"=true
+helm upgrade --install --create-namespace \
+--namespace argocd argocd charts/argocd
 
 helm template ./apps-of-apps/infra-stage-1 |kubectl apply -f -
 
