@@ -7,11 +7,20 @@ cilium:
     exclusive: false
   envoy:
     enabled: false
+  externalIPs:
+    enabled: true
   ipam:
     operator:
       clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
+  k8sClientRateLimit:
+    # Made up numbers, see docs to properly set:
+    # https://docs.cilium.io/en/stable/network/l2-announcements/#sizing-client-rate-limit
+    qps: 30
+    burst: 50
   k8sServiceHost: "127.0.0.1"
   k8sServicePort: 6443
   kubeProxyReplacement: true
+  l2announcements:
+    enabled: true
   operator:
     replicas: 1
