@@ -8,18 +8,13 @@ Kubebag is my playground where I am learning about k8s by trying to create a Kub
 
 Install virt-manager and deps. 
 
-#### Edit "default" network and make the dhcp pool start at 100
-
-```bash
-sudo virsh net-edit default
-sudo virsh net-autostart default
-sudo virsh net-destroy --network default
-sudo virsh net-start --network default
-```
-
 ### CLI Tools
 
 #### Cilium cli
+
+`nix shell nixpkgs#cilium-cli` or `brew install cilium-cli`
+
+OR
 
 ```bash
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -33,6 +28,10 @@ rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
 #### Hubble cli
 
+`nix shell nixpkgs#hubble` or `brew install hubble`
+
+OR
+
 ```bash
 HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
 HUBBLE_ARCH=amd64
@@ -44,6 +43,10 @@ rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
 ```
 
 #### Argo CD cli
+
+`brew install argocd`
+
+OR
 
 ```bash
 VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
@@ -80,10 +83,53 @@ virsh destroy fcos && virsh undefine --remove-all-storage fcos
 
 #### Start vm
 
+This setup assumes you have two bridges:
+
+- `br0`: bridges to the LAN
+- `virbr0`: the default bridge that is NAT'ed
+
+Edit "default" network and make the DHCP pool start at 100
+
+```bash
+sudo virsh net-edit default
+sudo virsh net-autostart default
+sudo virsh net-destroy --network default
+sudo virsh net-start --network default
+```
+
+Create a file name `br0.xml` containing this:
+
+```xml
+<network>
+  <name>br0</name>
+  <forward mode="bridge"/>
+  <bridge name="br0"/>
+</network>
+```
+
+Create the `br0` interface in libvirt:
+
+```bash
+virsh net-define br0.xml
+virsh net-start br0
+virsh net-autostart br0
+```
+
+Make it possible for other things to talk to the VM:
+
+>this was taken from https://gist.github.com/plembo/a7b69f92953a76ab2d06533754b5e2bb
+ 
+```bash
+sudo modprobe br_netfilter
+```
+
+Start up the VM:
+
 ```bash
 virt-install --name=fcos --vcpus=3 --ram=6144 \
 --os-variant=fedora-coreos-stable \
 --import \
+--network=bridge=br0 \
 --network=bridge=virbr0 \
 --disk=size=20,backing_store=$HOME/.local/share/libvirt/images/fedora-coreos.qcow2 \
 --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
@@ -96,7 +142,7 @@ virt-install --name=fcos --vcpus=3 --ram=6144 \
 
 ```bash
 # Update to IP of CoreOS. This should match what is in server.bu
-IPADDRESS=192.168.122.10
+IPADDRESS=192.168.20.170
 mkdir -p $HOME/.kube
 echo 'Waiting for K3s to generate a kubeconfig for us and then downloading it...'
 ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
@@ -138,8 +184,10 @@ kubectl get pods --all-namespaces \
 
 sleep 30
 
-helm upgrade --install --create-namespace \
---namespace argocd argocd charts/argocd
+helm upgrade --install argocd argo/argo-cd \
+--create-namespace --namespace argocd \
+--set configs.params.'server.insecure'=true \
+--set configs.cm.'application.resourceTrackingMethod'=annotation
 
 helm template ./apps-of-apps/infra-stage-1 |kubectl apply -f -
 
