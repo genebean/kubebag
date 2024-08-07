@@ -55,6 +55,14 @@ sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 ```
 
+#### Step cli
+
+`brew install step`
+
+#### kubeseal
+
+`brew install kubeseal`
+
 ### Get Fedora CoreOS running
 
 #### Download an image
