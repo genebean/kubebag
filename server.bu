@@ -4,9 +4,11 @@ passwd:
   users:
     - name: gene
       groups: ["wheel", "sudo"]
+      password_hash: $y$j9T$7ccxqctcs5iSi6CbGS3Jt0$nhkYzywhr/uJTNIFqRRxP1H2JGThg1zB4orgKo3WlI2
       ssh_authorized_keys:
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjigwV0KnnaTnFmKjjvnULa5X+hvsy2FAlu+lUUY59f gene@rainbow-planet
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHal4d+FdbPhiX8sOBsSrBs2iqGlsXjxmBbQVAc22wfu gene@bigboy
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIp42X5DZ713+bgbOO+GXROufUFdxWo7NjJbGQ285x3N gene.liverman@ltnglobal.com
 systemd:
   units:
     - name: "rpm-ostree-install-k3s-dependencies.service"
@@ -127,6 +129,21 @@ storage:
           id=enp1s0
           type=ethernet
           interface-name=enp1s0
+          [ipv4]
+          address1=192.168.20.170/24,192.168.20.1
+          dhcp-hostname=fcos-vm1
+          dns=192.168.20.1;
+          dns-search=
+          may-fail=false
+          method=manual
+    - path: /etc/NetworkManager/system-connections/enp2s0.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=enp2s0
+          type=ethernet
+          interface-name=enp2s0
           [ipv4]
           address1=192.168.122.10/24,192.168.122.1
           dhcp-hostname=fcos-vm1

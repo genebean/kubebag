@@ -10,8 +10,11 @@
           "sudo"
         ],
         "name": "gene",
+        "passwordHash": "$y$j9T$7ccxqctcs5iSi6CbGS3Jt0$nhkYzywhr/uJTNIFqRRxP1H2JGThg1zB4orgKo3WlI2",
         "sshAuthorizedKeys": [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjigwV0KnnaTnFmKjjvnULa5X+hvsy2FAlu+lUUY59f gene@rainbow-planet"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjigwV0KnnaTnFmKjjvnULa5X+hvsy2FAlu+lUUY59f gene@rainbow-planet",
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHal4d+FdbPhiX8sOBsSrBs2iqGlsXjxmBbQVAc22wfu gene@bigboy",
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIp42X5DZ713+bgbOO+GXROufUFdxWo7NjJbGQ285x3N gene.liverman@ltnglobal.com"
         ]
       }
     ]
@@ -48,7 +51,15 @@
         "path": "/etc/NetworkManager/system-connections/enp1s0.nmconnection",
         "contents": {
           "compression": "gzip",
-          "source": "data:;base64,H4sIAAAAAAAC/1TMwarDIBCF4f08yzU3SigtxScJWQw6ohBHcaaBvH1poYtsP87519CYKWhpvEGJnrhbmUHPTp4002BSKKw0EgYyjJV+m7X0Y9kAYxwkYr19uMne7pN1brLzv1v+LgIxh25yE/1GUmhijmohslyvzw8ZIRwhe6h4moRl9wl3IaikuUVfkV+4wzsAAP//T2zVVL4AAAA="
+          "source": "data:;base64,H4sIAAAAAAAC/1TM3QrDIAzF8fs8y+xqKftg+CSlF0EjCjWKyQp9+7HBYLv9cc5/8ZWZvObKK+TgiJuVEfRo5EgTdSaFzEo9oifDWOi7WXLb5xUwhE4i1tn7NNjLbZjGwV7H8zSffgVC8s2kKvppRF/F7MVCYPl7Pt5ihLD75KDgYSLmzUXchKCQphpcQX7iBq8AAAD//65TzaW8AAAA"
+        },
+        "mode": 384
+      },
+      {
+        "path": "/etc/NetworkManager/system-connections/enp2s0.nmconnection",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/1TMwarDIBCF4f08yzU3SigtxScJWQw6ohBHcaaBvH1poYtsP87519CYKWhpvEGJnrg7mUHPTp4002BSKKw0EgYyjJV+m7X0Y9kAYxwkYr19uMne7pN1brLzv1v+LgIxh25yE/1GUmhijmohslyvzw8ZIRwhe6h4moRl9wl3IaikuUVfkV+4wzsAAP//Fb3u9r4AAAA="
         },
         "mode": 384
       },
@@ -120,7 +131,7 @@
         "name": "var.mount"
       },
       {
-        "contents": "[Unit]\nDescription=Install k3s dependencies\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=|!/usr/bin/kubectl\nConditionPathExists=|!/usr/share/selinux/packages/k3s.pp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes kubectl k3s-selinux\nExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s \u0026\u0026 /usr/sbin/fixfiles -F -f relabel'\n\n[Install]\nWantedBy=multi-user.target\n",
+        "contents": "[Unit]\nDescription=Install k3s dependencies\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=|!/usr/bin/kubectl\nConditionPathExists=|!/usr/share/selinux/packages/k3s.pp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes kubectl k3s-selinux\nExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s \u0026\u0026 /usr/sbin/fixfiles -F -f relabel'\n\n[Install]\nWantedBy=multi-user.target\n",
         "enabled": true,
         "name": "rpm-ostree-install-k3s-dependencies.service"
       },
@@ -130,7 +141,7 @@
         "name": "k3s.service"
       },
       {
-        "contents": "[Unit]\nDescription=Install a few packages\nWants=network-online.target\nAfter=network-online.target rpm-ostree-install-k3s-dependencies.service\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim\n\n[Install]\nWantedBy=multi-user.target\n",
+        "contents": "[Unit]\nDescription=Install a few packages\nWants=network-online.target\nAfter=network-online.target rpm-ostree-install-k3s-dependencies.service\nBefore=zincati.service\nConditionPathExists=|!/usr/bin/htop\nConditionPathExists=|!/usr/sbin/ipvsadm\nConditionPathExists=|!/usr/bin/tree\nConditionPathExists=|!/usr/bin/vim\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes htop ipvsadm tree vim\n\n[Install]\nWantedBy=multi-user.target\n",
         "enabled": true,
         "name": "rpm-ostree-install-extra-packages.service"
       },
