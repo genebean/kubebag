@@ -1,10 +1,9 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: argocd
-  namespace: argocd
+  name: argocd-server-gateway
 spec:
-  gatewayClassName: traefik-v3
+  gatewayClassName: traefik-v3-gatewayclass
 
   # Only Routes from the same namespace are allowed.
   listeners:
@@ -16,13 +15,13 @@ spec:
           from: Same
 
     - name: https
+      hostname: argocd.k8s.technicalissues.us
       protocol: HTTPS
       port: 443
       tls:
         mode: Terminate
         certificateRefs:
           - name: argocd-server-tls
-            namespace: argocd
 
       allowedRoutes:
         namespaces:
