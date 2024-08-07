@@ -10,6 +10,11 @@ cilium:
     enabled: false
   externalIPs:
     enabled: true
+  hubble:
+    relay:
+      enabled: true
+    ui:
+      enabled: true
   ipam:
     operator:
       clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
