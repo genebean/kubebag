@@ -4,5 +4,7 @@ traefik:
   providers:
     kubernetesCRD:
       ingressClass: traefik
+    kubernetesGateway:
+      enabled: true
     kubernetesIngress:
       ingressClass: traefik
