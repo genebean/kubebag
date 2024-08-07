@@ -145,10 +145,11 @@ virt-install --name=fcos --vcpus=3 --ram=6144 \
 IPADDRESS=192.168.20.170
 mkdir -p $HOME/.kube
 echo 'Waiting for K3s to generate a kubeconfig for us and then downloading it...'
-ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
+ssh -o UserKnownHostsFile=/dev/null gene@$IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
 sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
-|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/config
-chmod 600 ~/.kube/config
+|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/k3s-libvirt-config
+chmod 600 ~/.kube/k3s-libvirt-config
+export KUBECONFIG="$HOME/.kube/k3s-libvirt-config"
 echo
 echo 'Listing namespaces to verify kubectl is working...'
 until kubectl get ns; do sleep 5; done
@@ -257,9 +258,9 @@ In original terminal
 ```bash
 ARGOCD_PW=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
-~/argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PW
-~/argocd account update-password --current-password $ARGOCD_PW
-~/argocd login localhost:8080 --insecure --username admin # use new password
+argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PW
+argocd account update-password --current-password $ARGOCD_PW
+argocd login localhost:8080 --insecure --username admin # use new password
 
 ```
 
