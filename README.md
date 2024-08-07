@@ -2,11 +2,24 @@
 
 Kubebag is my playground where I am learning about k8s by trying to create a Kubernetes-based setup that I really like and that could replace other things.
 
-## Setup
+## Prep
 
-Install virt-manager and deps. Edit "default" network via `virsh net-edit default` and make the dhcp pool start at 100.
+### virt-manager
 
-If not already installed.....
+Install virt-manager and deps. 
+
+#### Edit "default" network and make the dhcp pool start at 100
+
+```bash
+sudo virsh net-edit default
+sudo virsh net-autostart default
+sudo virsh net-destroy --network default
+sudo virsh net-start --network default
+```
+
+### CLI Tools
+
+#### Cilium cli
 
 ```bash
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -18,23 +31,73 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
-Next, get Fedora CoreOS running:
+#### Hubble cli
+
+```bash
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+HUBBLE_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+```
+
+#### Argo CD cli
+
+```bash
+VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+```
+
+### Get Fedora CoreOS running
+
+#### Download an image
+
+```bash
+mkdir -p $HOME/.local/share/libvirt/images
+podman run --rm -v $HOME/.local/share/libvirt/images/:/data -w /data \
+quay.io/coreos/coreos-installer:release download -s stable -p qemu -f qcow2.xz --decompress
+mv $HOME/.local/share/libvirt/images/fedora-coreos-* $HOME/.local/share/libvirt/images/fedora-coreos.qcow2
+```
+
+If you have an older image downloaded the above may throw an error... just clean up the older image and do the move again.
+
+#### Update Ignition file, if needed
+
+```bash
+podman run -i --rm quay.io/coreos/butane:release \
+--pretty --strict < server.bu > server.ign
+```
+
+#### Destroy previous vm
+
+```bash
+virsh destroy fcos && virsh undefine --remove-all-storage fcos
+```
+
+#### Start vm
 
 ```bash
 virt-install --name=fcos --vcpus=3 --ram=6144 \
 --os-variant=fedora-coreos-stable \
 --import \
 --network=bridge=virbr0 \
---disk=size=20,backing_store=/home/gene/Downloads/fedora-coreos.qcow2 \
+--disk=size=20,backing_store=$HOME/.local/share/libvirt/images/fedora-coreos.qcow2 \
 --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
 --graphics=none
 ```
 
-Copy over a kube connfig and bootstrap things:
+**NOTE:** to get out of the serial console, press `Ctrl + ]`
+
+## Copy over a kube connfig and bootstrap things
 
 ```bash
 # Update to IP of CoreOS. This should match what is in server.bu
 IPADDRESS=192.168.122.10
+mkdir -p $HOME/.kube
 echo 'Waiting for K3s to generate a kubeconfig for us and then downloading it...'
 ssh -o UserKnownHostsFile=/dev/null $IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
 sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \

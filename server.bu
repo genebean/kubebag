@@ -6,6 +6,7 @@ passwd:
       groups: ["wheel", "sudo"]
       ssh_authorized_keys:
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjigwV0KnnaTnFmKjjvnULa5X+hvsy2FAlu+lUUY59f gene@rainbow-planet
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHal4d+FdbPhiX8sOBsSrBs2iqGlsXjxmBbQVAc22wfu gene@bigboy
 systemd:
   units:
     - name: "rpm-ostree-install-k3s-dependencies.service"
