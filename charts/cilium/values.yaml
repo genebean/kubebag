@@ -1,5 +1,6 @@
 cilium:
   bpf:
+    masquerade: true
     datapathMode: netkit
   cni:
     binPath: '/var/opt/cni/bin'
