@@ -205,6 +205,7 @@ until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep 
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -c Unknown) -gt 0 ]; do  echo 'Waiting for sync status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Synced -c) -eq 1 ]; do  echo 'Waiting for all apps to be synced'; kubectl -n argocd get Applications; echo; sleep 5; done
 until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -v Healthy -c) -eq 1 ]; do  echo 'Waiting for all apps to be healthy'; kubectl -n argocd get Applications; echo; sleep 5; done
+
 ```
 
 Generate trust anchor for Linkerd:
