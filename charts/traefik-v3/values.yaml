@@ -3,7 +3,7 @@ traefik:
     enabled: true
     maxReplicas: 3
   ingressClass:
-    name: traefik
+    name: traefik-v3
   ingressRoute:
     dashboard:
       enabled: true

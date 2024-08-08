@@ -3,6 +3,8 @@ kind: IngressRoute
 metadata:
   name: argocd-server-ingressroute
   namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: traefik-v3
 spec:
   entryPoints:
     - websecure
