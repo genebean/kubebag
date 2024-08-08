@@ -1,6 +1,9 @@
 traefik:
   ingressClass:
     name: traefik
+  ingressRoute:
+    dashboard:
+      enabled: true
   providers:
     kubernetesCRD:
       ingressClass: traefik
