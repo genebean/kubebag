@@ -16,8 +16,8 @@ traefik:
   logs:
     access:
       enabled: true
-    general:
-      level: 'DEBUG'
+    # general:
+    #   level: 'DEBUG'
   providers:
     kubernetesCRD:
       ingressClass: traefik-v3
