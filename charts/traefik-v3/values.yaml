@@ -14,6 +14,6 @@ traefik:
       level: 'DEBUG'
   providers:
     kubernetesCRD:
-      ingressClass: traefik
+      ingressClass: traefik-v3
     kubernetesIngress:
-      ingressClass: traefik
+      ingressClass: traefik-v3
