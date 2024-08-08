@@ -8,7 +8,7 @@ spec:
   # Only Routes from the same namespace are allowed.
   listeners:
     - name: web
-      protocol: HTTP
+      protocol: TCP
       port: 80
       allowedRoutes:
         namespaces:

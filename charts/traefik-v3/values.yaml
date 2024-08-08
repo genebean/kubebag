@@ -18,9 +18,6 @@ traefik:
       enabled: true
     general:
       level: 'DEBUG'
-  ports:
-    web:
-      protocol: HTTP
   providers:
     kubernetesCRD:
       ingressClass: traefik-v3
