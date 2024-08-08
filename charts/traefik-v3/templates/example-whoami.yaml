@@ -1,18 +1,18 @@
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: whoami
-  annotations:
-    kubernetes.io/ingress.class: traefik-v3
-spec:
-  entryPoints:
-    - web
-  routes:
-  - match: Host(`whoami.example.com`)
-    kind: Rule
-    services:
-    - name: whoami
-      port: 80
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: whoami
+#   annotations:
+#     kubernetes.io/ingress.class: traefik-v3
+# spec:
+#   entryPoints:
+#     - web
+#   routes:
+#   - match: Host(`whoami.example.com`)
+#     kind: Rule
+#     services:
+#     - name: whoami
+#       port: 80
 ---
 apiVersion: v1
 kind: Service
