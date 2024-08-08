@@ -7,6 +7,12 @@ traefik:
   ingressRoute:
     dashboard:
       enabled: true
+      matchRule: Host(`traefik.example.com`)
+      # Don't do this in prod, use https and auth of some kind
+      entryPoints: ["web"]
+      # Add custom middlewares : authentication and redirection
+      # middlewares:
+      #   - name: traefik-dashboard-auth
   logs:
     access:
       enabled: true
