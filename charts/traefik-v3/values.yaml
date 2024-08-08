@@ -21,5 +21,7 @@ traefik:
   providers:
     kubernetesCRD:
       ingressClass: traefik-v3
+    kubernetesGateway:
+      enabled: true
     kubernetesIngress:
       ingressClass: traefik-v3
