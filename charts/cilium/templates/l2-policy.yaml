@@ -6,7 +6,7 @@ spec:
   nodeSelector:
     matchExpressions:
       - key: node-role.kubernetes.io/control-plane
-        operator: in
+        operator: In
         values:
           - "true"
   interfaces:
