@@ -10,27 +10,28 @@ traefik:
   logs:
     access:
       enabled: true
-    fields:
-      defaultMode: keep
-      names:
-        ClientUsername: drop
-        StartLocal: keep
-        RouterName: keep
-        ServiceName: keep
-        ServiceURL: keep
-        RequestHost: keep
-        RequestPort: keep
-        RequestMethod: keep
-        RequestPath: keep
-        RequestProtocol: keep
-        RequestScheme: keep
-        RequestLine: keep
-      headers:
-        defaultMode: keep
-        names:
-          User-Agent: keep
-          Authorization: keep
-          Content-Type: keep
+      fields:
+        general:
+          defaultmode: keep
+          names:
+            ClientUsername: drop
+            StartLocal: keep
+            RouterName: keep
+            ServiceName: keep
+            ServiceURL: keep
+            RequestHost: keep
+            RequestPort: keep
+            RequestMethod: keep
+            RequestPath: keep
+            RequestProtocol: keep
+            RequestScheme: keep
+            RequestLine: keep
+        headers:
+          defaultmode: keep
+          names:
+            User-Agent: keep
+            Authorization: keep
+            Content-Type: keep
   providers:
     kubernetesCRD:
       ingressClass: traefik
