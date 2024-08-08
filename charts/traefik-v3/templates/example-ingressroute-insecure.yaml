@@ -8,8 +8,8 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: Host(`argocd.example.com`)
+  - match: Host(`whoami.example.com`)
     kind: Rule
     services:
-    - name: argocd-server
+    - name: whoami
       port: 80
