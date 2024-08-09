@@ -7,7 +7,7 @@ spec:
     - whoami2.example.com
   parentRefs:
     - name: traefik-gateway
-      sectionName: web
+      sectionName: http
       kind: Gateway
   rules:
      - matches:
