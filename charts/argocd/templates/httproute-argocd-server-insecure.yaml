@@ -4,7 +4,7 @@ metadata:
   name: argocd-server-insecure
 spec:
   hostnames:
-    - argocd2.example.com
+    - argocd.example.com
   parentRefs:
     - name: argocd-server-gateway
       sectionName: http
