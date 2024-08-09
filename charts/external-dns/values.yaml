@@ -1,6 +1,6 @@
 external-dns:
   domainFilters:
-    - k8s.technicalissues.us
+    - technicalissues.us
   envFrom:
     - secretRef:
         name: sealed-gandi
