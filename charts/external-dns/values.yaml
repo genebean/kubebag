@@ -9,7 +9,7 @@ external-dns:
   extraVolumes:
     name:
   sources:
-    - gateway-grcproute
+    # - gateway-grcproute
     - gateway-httproute
     - gateway-tcproute
     - gateway-tlsroute
