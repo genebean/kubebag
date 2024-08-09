@@ -2,6 +2,12 @@ traefik:
   autoscaling:
     enabled: true
     maxReplicas: 3
+  gateway:
+    name: traefik-v3
+    listeners:
+      name: http
+      protocol: HTTP
+      port: 80
   gatewayClass:
     name: traefik-v3
   ingressClass:
