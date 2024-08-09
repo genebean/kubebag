@@ -1,0 +1,10 @@
+# this is not being used. My fork is used instead
+# so that I can load a secret via envFrom.
+# https://github.com/kubernetes-sigs/external-dns/pull/4671
+# apps-of-apps/infra-stage-2/templates/apps/app-external-dns.yaml
+# has been updated to account for this.
+#
+dependencies: []
+# - name: external-dns
+#   version: 1.14.5
+#   repository: https://kubernetes-sigs.github.io/external-dns
