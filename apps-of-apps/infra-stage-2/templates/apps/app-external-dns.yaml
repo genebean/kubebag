@@ -11,19 +11,13 @@ spec:
   # https://github.com/kubernetes-sigs/external-dns/pull/4671
   # has been merged and a new chart release has been made.
   # GL 2024-08-09
-  sources:
-    - repoURL: https://github.com/genebean/external-dns.git
-      targetRevision: envfrom
-      path: charts/external-dns
-      helm:
-       valueFiles:
-         - values.yaml
-    - repoURL: https://github.com/genebean/kubebag.git
-      targetRevision: redo
-      path: charts/external-dns
-      helm:
-       valueFiles:
-         - values.yaml
+  source:
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/external-dns
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     namespace: external-dns
     server: https://kubernetes.default.svc

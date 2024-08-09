@@ -1,19 +1,18 @@
-# external-dns:
-# due to using "multiple sources," this list has be un-indented
-domainFilters:
-  - k8s.technicalissues.us
-envFrom:
-  - secretRef:
-      name: sealed-gandi
-provider:
-  name: gandi
-extraVolumes:
-  name:
-sources:
-  - gateway-grcproute
-  - gateway-httproute
-  - gateway-tcproute
-  - gateway-tlsroute
-  - gateway-udproute
-  - ingress
-  - traefik-proxy
+external-dns:
+  domainFilters:
+    - k8s.technicalissues.us
+  envFrom:
+    - secretRef:
+        name: sealed-gandi
+  provider:
+    name: gandi
+  extraVolumes:
+    name:
+  sources:
+    - gateway-grcproute
+    - gateway-httproute
+    - gateway-tcproute
+    - gateway-tlsroute
+    - gateway-udproute
+    - ingress
+    - traefik-proxy
