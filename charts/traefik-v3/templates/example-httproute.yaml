@@ -3,21 +3,17 @@ kind: HTTPRoute
 metadata:
   name: whoami-httproute
 spec:
+  hostnames:
+    - whoami2.example.com
   parentRefs:
     - name: traefik-gateway
       sectionName: http
       kind: Gateway
-
-  hostnames:
-    - whoami2.example.com
-
   rules:
      - matches:
         - path:
             type: PathPrefix
             value: /
-
        backendRefs:
         - name: whoami
-          namespace: default
           port: 80
