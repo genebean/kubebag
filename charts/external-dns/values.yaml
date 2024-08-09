@@ -1,9 +1,10 @@
 external-dns:
   domainFilters:
-    - technicalissues.us
+    - k8s.technicalissues.us
   envFrom:
     - secretRef:
         name: sealed-gandi
+  logLevel: debug
   provider:
     name: gandi
   extraVolumes:
