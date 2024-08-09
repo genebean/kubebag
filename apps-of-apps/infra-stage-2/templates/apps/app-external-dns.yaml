@@ -20,6 +20,8 @@ spec:
       targetRevision: redo
       path: charts/external-dns
       helm:
+       valueFiles:
+         - values.yaml
   destination:
     namespace: external-dns
     server: https://kubernetes.default.svc
