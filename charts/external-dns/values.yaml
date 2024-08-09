@@ -15,4 +15,4 @@ external-dns:
     - gateway-tlsroute
     - gateway-udproute
     - ingress
-    - traefik-proxy
+    # - traefik-proxy
