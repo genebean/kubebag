@@ -29,8 +29,8 @@ traefik:
   logs:
     access:
       enabled: true
-    general:
-      level: 'DEBUG'
+    # general:
+    #   level: 'DEBUG'
   ports:
     web:
       port: 80
