@@ -1,0 +1,213 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: gene
+      groups: ["wheel", "sudo"]
+      password_hash: $y$j9T$7ccxqctcs5iSi6CbGS3Jt0$nhkYzywhr/uJTNIFqRRxP1H2JGThg1zB4orgKo3WlI2
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjigwV0KnnaTnFmKjjvnULa5X+hvsy2FAlu+lUUY59f gene@rainbow-planet
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHal4d+FdbPhiX8sOBsSrBs2iqGlsXjxmBbQVAc22wfu gene@bigboy
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIp42X5DZ713+bgbOO+GXROufUFdxWo7NjJbGQ285x3N gene.liverman@ltnglobal.com
+systemd:
+  units:
+    - name: "rpm-ostree-install-k3s-dependencies.service"
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install k3s dependencies
+        Wants=network-online.target
+        After=network-online.target
+        Before=zincati.service
+        ConditionPathExists=|!/usr/bin/kubectl
+        ConditionPathExists=|!/usr/share/selinux/packages/k3s.pp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes kubectl k3s-selinux
+        ExecStartPost=/usr/bin/bash -c '/usr/sbin/semodule -v -e k3s && /usr/sbin/fixfiles -F -f relabel'
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "k3s.service"
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Run K3s
+        Wants=network-online.target
+        After=rpm-ostree-install-k3s-dependencies.service
+        Requires=rpm-ostree-install-k3s-dependencies.service
+
+        [Service]
+        Type=notify
+        EnvironmentFile=-/etc/default/%N
+        EnvironmentFile=-/etc/sysconfig/%N
+        EnvironmentFile=-/etc/systemd/system/%N.env
+        KillMode=process
+        Delegate=yes
+        LimitNOFILE=1048576
+        LimitNPROC=infinity
+        LimitCORE=infinity
+        TasksMax=infinity
+        TimeoutStartSec=0
+        Restart=always
+        RestartSec=5s
+        ExecStartPre=-/sbin/modprobe br_netfilter
+        ExecStartPre=-/sbin/modprobe overlay
+        ExecStart=/usr/local/bin/k3s server --kubelet-arg="config=/etc/rancher/k3s/kubelet.config"
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "rpm-ostree-install-extra-packages.service"
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install a few packages
+        Wants=network-online.target
+        After=network-online.target rpm-ostree-install-k3s-dependencies.service
+        Before=zincati.service
+        ConditionPathExists=|!/usr/bin/htop
+        ConditionPathExists=|!/usr/sbin/ipvsadm
+        ConditionPathExists=|!/usr/bin/tree
+        ConditionPathExists=|!/usr/bin/vim
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=rpm-ostree install --idempotent --apply-live --allow-inactive --assumeyes htop ipvsadm qemu-guest-agent tree vim
+
+        [Install]
+        WantedBy=multi-user.target
+    # Node shutdown leaves pods with status.phase=Failed and status.reason=Shutdown,
+    # so delete them automatically on startup.
+    # This may delete some pods that failed for other reasons, but --field-selector doesn't
+    # currently support status.reason, so it's the best we can do.
+    - name: "k3s-cleanup-shutdown-pods.service"
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Cleanup pods terminated by node shutdown
+        Wants=k3s.service
+
+        [Service]
+        Type=oneshot
+        Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+        ExecStart=kubectl delete pods --field-selector status.phase=Failed -A --ignore-not-found=true
+        Restart=on-failure
+        RestartSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  disks:
+    - device: /dev/disk/by-id/coreos-boot-disk
+      wipe_table: false
+      partitions:
+      - number: 4
+        label: root
+        size_mib: 8192
+        resize: true
+      - label: var  # not specifying "number", so this will go after the root partition
+        size_mib: 0 # means "use the rest of the space on the disk"
+  filesystems:
+    - path: /var
+      device: /dev/disk/by-partlabel/var
+      format: xfs
+      wipe_filesystem: false # preserve /var on reinstall (this is the default, but be explicit)
+      with_mount_unit: true  # mount this filesystem in the real root
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: fcos-vm1
+    - path: /etc/NetworkManager/system-connections/ens18.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=ens18
+          type=ethernet
+          interface-name=ens18
+          [ipv4]
+          address1=192.168.20.170/24,192.168.20.1
+          dhcp-hostname=fcos-vm1
+          dns=192.168.20.1;
+          dns-search=
+          may-fail=false
+          method=manual
+    - path: /etc/NetworkManager/system-connections/ens19.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=ens19
+          type=ethernet
+          interface-name=ens19
+          [ipv4]
+          address1=192.168.122.10/24,192.168.122.1
+          dhcp-hostname=fcos-vm1
+          dns=192.168.122.1;
+          dns-search=
+          may-fail=false
+          method=manual
+    - path: /etc/rancher/k3s/config.yaml
+      mode: 0644
+      contents:
+        inline: |
+          cluster-init: true
+          disable:
+            - servicelb
+            - traefik
+          disable-kube-proxy: true
+          disable-network-policy: true
+          flannel-backend: none
+          selinux: true
+          tls-san: true
+          write-kubeconfig-mode: "0644"
+    - path: /etc/yum.repos.d/kubernetes.repo
+      mode: 0644
+      contents:
+        inline: |
+          [kubernetes]
+          name=Kubernetes
+          baseurl=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/
+          enabled=1
+          gpgcheck=1
+          gpgkey=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/repodata/repomd.xml.key
+    - path: /etc/yum.repos.d/rancher-k3s-common.repo
+      mode: 0644
+      contents:
+        inline: |
+          [rancher-k3s-common-stable]
+          name=Rancher K3s Common (stable)
+          baseurl=https://rpm.rancher.io/k3s/stable/common/coreos/noarch/
+          enabled=1
+          gpgcheck=1
+          repo_gpgcheck=0
+          gpgkey=https://rpm.rancher.io/public.key
+    - path: /usr/local/bin/k3s
+      overwrite: true
+      mode: 0755
+      contents:
+        source: "https://github.com/k3s-io/k3s/releases/download/v1.30.2%2Bk3s2/k3s"
+        verification:
+          hash: "sha256-3b7f74edcc9b4a7649426b6816a7d3d6d76ddf742384ac63b86ee66e230de758"
+    - path: /etc/rancher/k3s/kubelet.config
+      mode: 0644
+      contents:
+        inline: |
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+          shutdownGracePeriod: 60s
+          shutdownGracePeriodCriticalPods: 10s
+    # Schedule automatic updates for 4am PT = 12pm UTC on weekends.
+    - path: /etc/zincati/config.d/55-updates-strategy.toml
+      contents:
+        inline: |
+          [updates]
+          strategy = "periodic"
+          [[updates.periodic.window]]
+          days = [ "Saturday", "Sunday" ]
+          start_time = "12:00"
+          length_minutes = 60
