@@ -172,7 +172,7 @@ for d in $(ls charts/); do helm dependency update charts/$d; done >/dev/null
 echo
 echo 'Installing Cilium'
 echo
-helm upgrade --install cilium cilium/cilium --version 1.16.0 \
+helm upgrade --install cilium cilium/cilium --version 1.16.1 \
   --namespace kube-system \
   --set bpf.datapathMode=netkit \
   --set cni.exclusive=false \

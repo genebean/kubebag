@@ -1,4 +1,0 @@
-dependencies:
-- name: linkerd-control-plane
-  version: 2024.7.5
-  repository: https://helm.linkerd.io/edge

@@ -1,4 +1,0 @@
-dependencies:
-- name: traefik
-  version: 30.0.2
-  repository: https://traefik.github.io/charts

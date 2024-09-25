@@ -3,3 +3,7 @@ appVersion: "1.0"
 description: Multus CNI
 name: multus-cni
 version: 0.1.0
+dependencies:
+- name: rke2-multus
+  version: v4.0.206
+  repository: https://rke2-charts.rancher.io
