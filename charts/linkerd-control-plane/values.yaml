@@ -1,0 +1,16 @@
+linkerd-control-plane:
+  identityTrustAnchorsPEM: |
+    -----BEGIN CERTIFICATE-----
+    MIIBjDCCATOgAwIBAgIQWz1ilonTFVdvEkuTM/qlkTAKBggqhkjOPQQDAjAlMSMw
+    IQYDVQQDExpyb290LmxpbmtlcmQuY2x1c3Rlci5sb2NhbDAeFw0yNDA4MTIyMTQx
+    MTRaFw0zNDA4MTAyMTQxMTRaMCUxIzAhBgNVBAMTGnJvb3QubGlua2VyZC5jbHVz
+    dGVyLmxvY2FsMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfxhmwQJyRa8wbGZP
+    0s+G2p4YGpxiVA1Ze/lmhE4uNfhJgP7Hyej7+C/NXW15tj5kdyGcMrm+1UlI0NN4
+    RI4+daNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYD
+    VR0OBBYEFNjmnjTmgqKVJ2mL5JTqojFkZjCUMAoGCCqGSM49BAMCA0cAMEQCIGM1
+    4/4NZXHiDOqciKpXj6IPMVIkHdOXXYJoqcB18wklAiB1xvxgkLQUEoHkgedK1A6H
+    NqYsJauU466gM81UAOFUSg==
+    -----END CERTIFICATE-----
+  identity:
+    issuer:
+      scheme: 'kubernetes.io/tls'

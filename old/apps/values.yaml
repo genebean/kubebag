@@ -3,4 +3,5 @@ spec:
     server: https://kubernetes.default.svc
   source:
     repoURL: https://github.com/genebean/kubebag
-    targetRevision: HEAD
+    # targetRevision: HEAD
+    targetRevision: redo

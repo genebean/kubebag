@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-v3
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-90"
+spec:
+  project: infra
+  source:
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/traefik-v3
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    namespace: traefik-v3
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

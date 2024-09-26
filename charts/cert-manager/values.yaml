@@ -1,0 +1,4 @@
+cert-manager:
+  installCRDs: "true"
+  extraArgs:
+    - '--enable-gateway-api'

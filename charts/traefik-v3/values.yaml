@@ -1,0 +1,47 @@
+traefik:
+  autoscaling:
+    enabled: true
+    maxReplicas: 3
+  gateway:
+    enabled: false # turn off the embedded one
+    # name: traefik-v3
+    # listeners:
+    #   web:
+    #     port: 80
+    #     protocol: HTTP
+    #   websecure:
+    #     port: 443
+    #     protocol: HTTPS
+  gatewayClass:
+    enabled: false # turn off the embedded one
+    # name: traefik-v3
+  ingressClass:
+    name: traefik-v3
+  ingressRoute:
+    dashboard:
+      enabled: true
+      matchRule: Host(`traefik.example.com`)
+      # Don't do this in prod, use https and auth of some kind
+      entryPoints: ["web"]
+      # Add custom middlewares : authentication and redirection
+      # middlewares:
+      #   - name: traefik-dashboard-auth
+  logs:
+    access:
+      enabled: true
+    # general:
+    #   level: 'DEBUG'
+  ports:
+    web:
+      port: 80
+    websecure:
+      port: 443
+    foo:
+      port: 12345
+  providers:
+    kubernetesCRD:
+      ingressClass: traefik-v3
+    kubernetesGateway:
+      enabled: true
+    kubernetesIngress:
+      ingressClass: traefik-v3

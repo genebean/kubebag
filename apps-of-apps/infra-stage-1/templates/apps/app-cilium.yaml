@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-95"
+spec:
+  project: infra
+  source:
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/cilium
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    namespace: kube-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

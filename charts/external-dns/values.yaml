@@ -1,0 +1,19 @@
+external-dns:
+  domainFilters:
+    - technicalissues.us
+  envFrom:
+    - secretRef:
+        name: sealed-gandi
+  logLevel: debug
+  provider:
+    name: gandi
+  extraVolumes:
+    name:
+  sources:
+    # - gateway-grcproute
+    - gateway-httproute
+    - gateway-tcproute
+    - gateway-tlsroute
+    - gateway-udproute
+    - ingress
+    # - traefik-proxy

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-90"
+spec:
+  project: infra
+  # The use of two sources is only needed
+  # https://github.com/kubernetes-sigs/external-dns/pull/4671
+  # has been merged and a new chart release has been made.
+  # GL 2024-08-09
+  source:
+    repoURL: https://github.com/genebean/kubebag.git
+    targetRevision: redo
+    path: charts/external-dns
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    namespace: external-dns
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

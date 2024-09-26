@@ -1,0 +1,15 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: sealed-gandi
+  namespace: external-dns
+spec:
+  encryptedData:
+    GANDI_PAT: AgBvYVyiSyKdu5uhW/VT6GeXltrnz9HAlMeg/ynwN44M3mNEbKvQi8bacThO2XMXjJkcQVVDTUsdegRRJ3A0B0yRDww7vlGl4XpPduguuLAsmaH3LjkdZPcNJw8vw7GGjvSG2I7PxiCVn3XJvthYvhZzX+Shz6VLVM08aBA0NxJWcVH0Blzi2oQpSWqwSJI/k8AbDLLvLGiJwAek6rk96mgJ1Ho0Qe0AelX0MCld4P8TgK/NmOKvLLFdfrePwYfn1UAxLzyUtkObzPXnJvzI3hhEnP7iUV90ehV1X4t1PTPuQ6s7xkMJ1+rx2c2Ceu1BAuKuEVOkSE1F24O7xZ+DDme+JGu66Zw6L8ibFfK17S+q3io78MH0dwBzITsWkRJ7OY9JTwxQqAfEQrTN/6kzrIjtk6UCT57zkQRj7PX9m73yRHJIu0yysnR5uhZkS6Pu6TNCu/19btD4NMLNAsJ7R+JMWCb2dh18+90EiBh0+Q7PYDPk/RDwvSR1rUlHlPp1PbbXM5rCQFP2Yq7XV20ldh37U3i/dIx5YBLIZgBEv7ZYNTFPXcVDD8X0bkRoe9ceEhEzdjvF+1WmqYp4Cj1y9N3EUVaehE/utjGaad+FV4iiUym339/dyNZgzaA/WnLQajTKQeJpVgo5kRidAAVUjXGNiI4IRs35Y/pi/lJzXtXCY26zB0Ihxa35hglJYej4wuMnHH3ejFI8PaHothZPoddtC71xYkS1oBRIfhgPpnj6Z74s601/1n9a
+  template:
+    metadata:
+      creationTimestamp: null
+      name: sealed-gandi
+      namespace: external-dns

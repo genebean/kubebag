@@ -1,102 +1,280 @@
 # Kubebag
 
-Kubebag is my playground where I am learning about k8s by trying to create a Kubernetes-based setup that could replace my current traditional server. The highlights of what I am aiming for:
+Kubebag is my playground where I am learning about k8s by trying to create a Kubernetes-based setup that I really like and that could replace other things.
 
-- [x] Based on [k3s](https://k3s.io)
-- [x] [MetalLB](https://metallb.universe.tf)
-- [x] [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
-- [x] Deployments with [Argo CD](https://argoproj.github.io/argo-cd)
-- [x] [Nginx Ingress controller](https://github.com/helm/charts/blob/master/stable/nginx-ingress/README.md)
-- [x] [OpenFaaS](https://www.openfaas.com)
-- [ ] postfix
-- [ ] Slack bot via OpenFaaS
-- [ ] Matomo
-- [ ] [MariaDB](https://github.com/helm/charts/blob/master/stable/mariadb/README.md) for Matomo
-- [ ] [TimescaleDB](https://github.com/timescale/timescaledb-kubernetes/blob/master/README.md)
-- [ ] Prometheus
-- [ ] Alertmanager
-- [x] [ExternalDNS](https://github.com/kubernetes-sigs/external-dns/blob/master/README.md)
-- [ ] [cert-manager](https://docs.cert-manager.io)
-- [ ] [Linkerd 2](https://linkerd.io)
-- [ ] [Loki](https://github.com/grafana/loki) & [promtail](https://github.com/grafana/loki/blob/master/docs/clients/promtail/README.md) (maybe)
+## Prep
 
-To support this running in Vagrant before being run for real a few additional tools are being deployed here:
+### virt-manager
 
-- [x] Addresses that utilize [nip.io](https://nip.io/)
-- [x] [CoreDNS](https://github.com/helm/charts/blob/master/stable/coredns/README.md)
-- [ ] [step-ca](https://smallstep.com/blog/private-acme-server/) (a stand-in for Let's Encrypt)
-- [ ] [Grafana](https://github.com/helm/charts/blob/master/stable/grafana/README.md) (in production I plan to use [Grafana Cloud](https://grafana.com/products/cloud/))
+Install virt-manager and deps. 
 
-## Running Kubebag
+### CLI Tools
 
-### Starting it up
+#### Cilium cli
 
-The initial setup utilizes sync waves to setup infrastructure in the order its needed:
+`nix shell nixpkgs#cilium-cli` or `brew install cilium-cli`
 
-1. local-path-provisioner
-2. MetalLB
-3. Nginx Ingress
-4. Argo CD
-5. everything else
-
-The setup process will copy the generated kubeconfig `/vagrant`, aka the project folder on your computer, and edit it so that it will work as needed. The process installs k3s and Argo CD and then deploys "applications" via a local Helm chart. The process takes a few minutes to run. The kubeconfig at the end of the block below will let you know when you can connect to Argo CD.
+OR
 
 ```bash
-cd kubebag
-export KUBECONFIG=kubeconfig
-vagrant up && kubectl get services -n nginx-ingress -w
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
-Once you see a line like the one below you can hit `^c` and connect to [argocd.192.168.50.240.nip.io](http://argocd.192.168.50.240.nip.io)
+#### Hubble cli
+
+`nix shell nixpkgs#hubble` or `brew install hubble`
+
+OR
 
 ```bash
-NAME                            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)                      AGE
-nginx-ingress-controller        LoadBalancer   10.43.176.66    192.168.50.240   80:30394/TCP,443:32516/TCP   7h45m
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+HUBBLE_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
 ```
 
-The username is `admin` and you can get the password by running `cat argocd-pw` from your terminal. Once you connect you may want to "sync" the application named `argocd`.
+#### Argo CD cli
 
-### OpenFaaS
+`brew install argocd`
 
-You can connect to OpenFaaS via [openfaas.192.168.50.240.nip.io](http://openfaas.192.168.50.240.nip.io). The username is `admin` and the password is `functions-are-fun` (these are set [here](configs/openfaas/values.yaml))
-
-### Testing external-dns & CoreDNS
-
-If you want to verify that these services are working run the following commands:
+OR
 
 ```bash
-$ kubectl apply -f test-files/localdns-tester-ingress.yaml
-ingress.extensions/nginx created
-
-$ kubectl get ingress --all-namespaces
-NAMESPACE   NAME                    HOSTS                            ADDRESS          PORTS   AGE
-argocd      argocd-server-ingress   argocd.192.168.50.240.nip.io     192.168.50.240   80      8h
-openfaas    openfaas-ingress        openfaas.192.168.50.240.nip.io   192.168.50.240   80      8h
-default     nginx                   nginx.vagrant.example.com        192.168.50.240   80      8m
-
-$ kubectl get -n localdns service/localdns-coredns
-NAME               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)         AGE
-localdns-coredns   ClusterIP   10.43.61.184   <none>        53/UDP,53/TCP   49m
+VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
 ```
 
-The above set of commands applies a sample ingress rule, verifies it is registered, and then looks up the ip of the CoreDNS server. Once you have that info you are ready to test querying that server like so:
+#### Step cli
+
+`brew install step`
+
+#### kubeseal
+
+`brew install kubeseal`
+
+### Get Fedora CoreOS running
+
+#### Download an image
 
 ```bash
-$ kubectl run -it --rm --restart=Never --image=infoblox/dnstools:latest dnstools
-If you don't see a command prompt, try pressing enter.
-
-dnstools# dig @10.43.61.184 +short nginx.vagrant.example.com
-192.168.50.240
-
-dnstools# exit
-pod "dnstools" deleted
+mkdir -p $HOME/.local/share/libvirt/images
+podman run --rm -v $HOME/.local/share/libvirt/images/:/data -w /data \
+quay.io/coreos/coreos-installer:release download -s stable -p qemu -f qcow2.xz --decompress
+mv $HOME/.local/share/libvirt/images/fedora-coreos-* $HOME/.local/share/libvirt/images/fedora-coreos.qcow2
 ```
 
-This brings up a temporary container for testing. Be sure to use the IP shown in your commands, not the one from here. After typing `exit` the pod for the test container is deleted. Now you can clean up the test ingress by running this:
+If you have an older image downloaded the above may throw an error... just clean up the older image and do the move again.
+
+#### Update Ignition file, if needed
 
 ```bash
-$ kubectl delete -f test-files/localdns-tester-ingress.yaml
-ingress.extensions "nginx" deleted
+podman run -i --rm quay.io/coreos/butane:release \
+--pretty --strict < server.bu > server.ign
 ```
 
-Assuming the above commands all worked, you now have a functional external-dns setup registering ingresses from your k3s instance with a DNS server external to the automated bits of Kubernetes. Note, though, that only ingresses are registered and then only if they are in the `vagrant.example.com` domain.
+#### Destroy previous vm
+
+```bash
+virsh destroy fcos && virsh undefine --remove-all-storage fcos
+```
+
+#### Start vm
+
+This setup assumes you have two bridges:
+
+- `br0`: bridges to the LAN
+- `virbr0`: the default bridge that is NAT'ed
+
+Edit "default" network and make the DHCP pool start at 100
+
+```bash
+sudo virsh net-edit default
+sudo virsh net-autostart default
+sudo virsh net-destroy --network default
+sudo virsh net-start --network default
+```
+
+Create a file name `br0.xml` containing this:
+
+```xml
+<network>
+  <name>br0</name>
+  <forward mode="bridge"/>
+  <bridge name="br0"/>
+</network>
+```
+
+Create the `br0` interface in libvirt:
+
+```bash
+virsh net-define br0.xml
+virsh net-start br0
+virsh net-autostart br0
+```
+
+Make it possible for other things to talk to the VM:
+
+>this was taken from https://gist.github.com/plembo/a7b69f92953a76ab2d06533754b5e2bb
+ 
+```bash
+sudo modprobe br_netfilter
+```
+
+Start up the VM:
+
+```bash
+virt-install --name=fcos --vcpus=3 --ram=6144 \
+--os-variant=fedora-coreos-stable \
+--import \
+--network=bridge=br0 \
+--network=bridge=virbr0 \
+--disk=size=20,backing_store=$HOME/.local/share/libvirt/images/fedora-coreos.qcow2 \
+--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=/home/gene/repos/kubebag/server.ign" \
+--graphics=none
+```
+
+**NOTE:** to get out of the serial console, press `Ctrl + ]`
+
+## Copy over a kube connfig and bootstrap things
+
+```bash
+# Update to IP of CoreOS. This should match what is in server.bu
+IPADDRESS=192.168.20.170
+mkdir -p $HOME/.kube
+echo 'Waiting for K3s to generate a kubeconfig for us and then downloading it...'
+ssh -o UserKnownHostsFile=/dev/null gene@$IPADDRESS "until [ -f "/etc/rancher/k3s/k3s.yaml" ]; do \
+sleep 5; done; cat /etc/rancher/k3s/k3s.yaml" \
+|sed 's/default/k3s/g' |sed "s/127\.0\.0\.1/$IPADDRESS/" > ~/.kube/k3s-libvirt-config
+chmod 600 ~/.kube/k3s-libvirt-config
+export KUBECONFIG="$HOME/.kube/k3s-libvirt-config"
+echo
+echo 'Listing namespaces to verify kubectl is working...'
+until kubectl get ns; do sleep 5; done
+echo
+echo 'updating charts used during bootstrapping...'
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo add cilium https://helm.cilium.io/
+echo
+helm repo update
+echo 'updating local charts quietly'
+for d in $(ls charts/); do helm dependency update charts/$d; done >/dev/null
+echo
+echo 'Installing Cilium'
+echo
+helm upgrade --install cilium cilium/cilium --version 1.16.1 \
+  --namespace kube-system \
+  --set bpf.datapathMode=netkit \
+  --set cni.exclusive=false \
+  --set envoy.enabled=false \
+  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
+  --set k8sServiceHost=127.0.0.1 \
+  --set k8sServicePort=6443 \
+  --set kubeProxyReplacement=true \
+  --set operator.replicas=1
+
+until cilium status --wait; do echo 'cilium status timed out, trying again'; sleep 2; done
+
+sleep 5
+
+kubectl get pods --all-namespaces \
+-o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,HOSTNETWORK:.spec.hostNetwork \
+--no-headers=true | grep '<none>' | awk '{print "-n "$1" "$2}' | xargs -L 1 -r kubectl delete pod
+
+sleep 30
+
+helm upgrade --install argocd argo/argo-cd \
+--create-namespace --namespace argocd \
+--set configs.params.'server.insecure'=true \
+--set configs.cm.'application.resourceTrackingMethod'=annotation
+
+helm template ./apps-of-apps/infra-stage-1 |kubectl apply -f -
+
+echo 'Starting to check for everything being ready'
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -c Healthy) -gt 0 ]; do echo 'Waiting for health status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -c Unknown) -gt 0 ]; do  echo 'Waiting for sync status to be reported'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f2 | grep -v Synced -c) -eq 1 ]; do  echo 'Waiting for all apps to be synced'; kubectl -n argocd get Applications; echo; sleep 5; done
+until [ $(kubectl -n argocd get Applications |tr -s ' ' | cut -d ' ' -f3 | grep -v Healthy -c) -eq 1 ]; do  echo 'Waiting for all apps to be healthy'; kubectl -n argocd get Applications; echo; sleep 5; done
+
+```
+
+Generate trust anchor for Linkerd:
+
+```bash
+step certificate create root.linkerd.cluster.local ca.crt ca.key \
+--profile root-ca --no-password --insecure  --not-after=87600h
+```
+
+Create, save, and apply sealed secret for trust anchor
+
+```bash
+kubectl -n linkerd create secret tls \
+  linkerd-trust-anchor \
+  --cert=ca.crt \
+  --key=ca.key \
+  --dry-run=client -o yaml | \
+kubeseal --controller-name=sealed-secrets \
+--controller-namespace=kubeseal -o yaml > charts/linkerd-control-plane/templates/sealed-linkerd-trust-anchor.yaml
+```
+
+Update ca cert in `charts/linkerd-control-plane/values.yaml` with one generated above and then commit to git and push.
+
+Get Gandi PAT:
+
+```bash
+read -s EXTERNAL_DNS_GANDI
+```
+
+Create the secret for Gandi:
+
+```bash
+export EXTERNAL_DNS_GANDI $EXTERNAL_DNS_GANDI
+kubectl -n external-dns create secret generic \
+  sealed-gandi \
+  --from-literal=GANDI_PAT=$EXTERNAL_DNS_GANDI \
+  --dry-run=client -o yaml | \
+kubeseal --controller-name=sealed-secrets \
+--controller-namespace=kubeseal -o yaml > charts/external-dns/templates/sealed-gandi.yaml
+```
+
+Commit and push gandi sealed secret
+
+```bash
+helm template ./apps-of-apps/infra-stage-2 |kubectl apply -f -
+watch -d 'kubectl -n argocd get applications'
+```
+
+At this stage stuff works. Set a new admin password and then go look at the web interface:
+
+In another terminal
+
+```bash
+kubectl port-forward service/argocd-server -n argocd 8080:443
+```
+
+In original terminal
+
+```bash
+ARGOCD_PW=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
+argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PW
+argocd account update-password --current-password $ARGOCD_PW
+argocd login localhost:8080 --insecure --username admin # use new password
+
+```
+
+## To Do / Notes
+
+- checked out viz dashboard via laptop
+- will need to enforce the that the following annotation is on everything but cert-manager
+  `linkerd.io/inject: enabled`

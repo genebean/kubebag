@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-multus-pod-2
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/networks: multus-whereabouts
+spec:
+  containers:
+  - name: container1
+    command: ["/bin/ash", "-c", "trap : TERM INT; sleep infinity & wait"]
+    image: alpine
